@@ -1,6 +1,7 @@
 # bot.py
 import os
 import sys
+import time
 
 import discord
 from discord import ui, app_commands
@@ -18,9 +19,23 @@ rejected_tag_id = int(os.getenv('REJECTED_TAG_ID'))
 discussion_tag_id = int(os.getenv('DISCUSSION_TAG_ID'))
 required_reactions = int(os.getenv('REQUIRED_REACTIONS'))
 log_channel_id = int(os.getenv('LOG_CHANNEL_ID'))
-bug_channel_id = int(os.getenv('BUG_CHANNEL_ID'))
 modmail_channel_id = int(os.getenv('MODMAIL_CHANNEL_ID'))
-    
+public_bug_channel_id = int(os.getenv('PUBLIC_BUG_CHANNEL_ID'))
+private_bug_channel_id = int(os.getenv('PRIVATE_BUG_CHANNEL_ID'))
+
+# public_bug_priority_low_tag = int(os.getenv('PUBLIC_BUG_PRIORITY_LOW_TAG'))
+# public_bug_priority_medium_tag = int(os.getenv('PUBLIC_BUG_PRIORITY_MEDIUM_TAG'))
+# public_bug_priority_high_tag = int(os.getenv('PUBLIC_BUG_PRIORITY_HIGH_TAG'))
+# public_bug_release_public_tag = int(os.getenv('PUBLIC_BUG_RELEASE_PUBLIC_TAG'))
+# public_bug_release_patreon_tag = int(os.getenv('PUBLIC_BUG_RELEASE_PATREON_TAG'))
+# public_bug_release_other_tag = int(os.getenv('PUBLIC_BUG_RELEASE_OTHER_TAG'))
+# public_bug_channel_tag = int(os.getenv('PRIVATE_BUG_CHANNEL_ID'))
+# public_bug_priority_low_tag = int(os.getenv('PRIVATE_BUG_PRIORITY_LOW_TAG'))
+# public_bug_priority_low_tag = int(os.getenv('PRIVATE_BUG_PRIORITY_MEDIUM_TAG'))
+# public_bug_priority_low_tag = int(os.getenv('PRIVATE_BUG_PRIORITY_HIGH_TAG'))
+# public_bug_release_low_tag = int(os.getenv('PRIVATE_BUG_RELEASE_PUBLIC_TAG'))
+# public_bug_release_low_tag = int(os.getenv('PRIVATE_BUG_RELEASE_PATREON_TAG'))
+# public_bug_release_low_tag = int(os.getenv('PRIVATE_BUG_RELEASE_OTHER_TAG'))
     
 # Define intents
 intents = discord.Intents.all()
@@ -46,6 +61,40 @@ async def on_ready():
             vote_reaction = "👍"
     else:
         await log(f'ERROR: Failed to get vote reaction: Channel {suggestions_channel_id} is not a forum channel')
+        
+    global public_bug_low_prio
+    global public_bug_medium_prio
+    global public_bug_high_prio
+    global public_bug_public_rel
+    global public_bug_patreon_rel
+    global public_bug_other_rel
+    public_bug_channel = await client.fetch_channel(public_bug_channel_id)
+    if isinstance(public_bug_channel, discord.ForumChannel):
+        public_bug_low_prio = next((tag for tag in public_bug_channel.available_tags if 'low' in tag.name.lower())).id
+        public_bug_medium_prio = next((tag for tag in public_bug_channel.available_tags if 'medium' in tag.name.lower())).id
+        public_bug_high_prio = next((tag for tag in public_bug_channel.available_tags if 'high' in tag.name.lower())).id
+        public_bug_public_rel = next((tag for tag in public_bug_channel.available_tags if 'public' in tag.name.lower())).id
+        public_bug_patreon_rel = next((tag for tag in public_bug_channel.available_tags if 'patreon' in tag.name.lower())).id
+        public_bug_other_rel = next((tag for tag in public_bug_channel.available_tags if 'other' in tag.name.lower())).id
+    else:
+        await log(f'ERROR: Failed to get public bug channel tags: Channel {public_bug_channel} is not a forum channel')
+        
+    global private_bug_low_prio
+    global private_bug_medium_prio
+    global private_bug_high_prio
+    global private_bug_public_rel
+    global private_bug_patreon_rel
+    global private_bug_other_rel
+    private_bug_channel = await client.fetch_channel(public_bug_channel_id)
+    if isinstance(private_bug_channel, discord.ForumChannel):
+        private_bug_low_prio = next((tag for tag in private_bug_channel.available_tags if 'low' in tag.name.lower())).id
+        private_bug_medium_prio = next((tag for tag in private_bug_channel.available_tags if 'medium' in tag.name.lower())).id
+        private_bug_high_prio = next((tag for tag in private_bug_channel.available_tags if 'high' in tag.name.lower())).id
+        private_bug_public_rel = next((tag for tag in private_bug_channel.available_tags if 'public' in tag.name.lower())).id
+        private_bug_patreon_rel = next((tag for tag in private_bug_channel.available_tags if 'patreon' in tag.name.lower())).id
+        private_bug_other_rel = next((tag for tag in private_bug_channel.available_tags if 'other' in tag.name.lower())).id
+    else:
+        await log(f'ERROR: Failed to get private bug channel tags: Channel {private_bug_channel} is not a forum channel')
 
 # Commands
 
@@ -143,7 +192,43 @@ async def update_env_var(key, value):
                 await log('WARN: No vote reaction found, using default')
                 vote_reaction = "👍"
         else:
-            await log(f'ERROR: Failed to get vote reaction: Channel {suggestions_channel_id} is not a forum channel')
+            await log(f'ERROR: Failed to get vote reaction: Channel {suggestions_channel} is not a forum channel')
+            
+    if key == 'PUBLIC_BUG_CHANNEL_ID':
+        global public_bug_low_prio
+        global public_bug_medium_prio
+        global public_bug_high_prio
+        global public_bug_public_rel
+        global public_bug_patreon_rel
+        global public_bug_other_rel
+        bug_channel = await client.fetch_channel(public_bug_channel_id)
+        if isinstance(bug_channel, discord.ForumChannel):
+            public_bug_low_prio = next((tag for tag in bug_channel.available_tags if 'low' in tag.name.lower())).id
+            public_bug_medium_prio = next((tag for tag in bug_channel.available_tags if 'medium' in tag.name.lower())).id
+            public_bug_high_prio = next((tag for tag in bug_channel.available_tags if 'high' in tag.name.lower())).id
+            public_bug_public_rel = next((tag for tag in bug_channel.available_tags if 'public' in tag.name.lower())).id
+            public_bug_patreon_rel = next((tag for tag in bug_channel.available_tags if 'patreon' in tag.name.lower())).id
+            public_bug_other_rel = next((tag for tag in bug_channel.available_tags if 'other' in tag.name.lower())).id
+        else:
+            await log(f'ERROR: Failed to get public bug channel tags: Channel {bug_channel} is not a forum channel')
+            
+    if key == 'PRIVATE_BUG_CHANNEL_ID':
+        global private_bug_low_prio
+        global private_bug_medium_prio
+        global private_bug_high_prio
+        global private_bug_public_rel
+        global private_bug_patreon_rel
+        global private_bug_other_rel
+        bug_channel = await client.fetch_channel(public_bug_channel_id)
+        if isinstance(bug_channel, discord.ForumChannel):
+            private_bug_low_prio = next((tag for tag in bug_channel.available_tags if 'low' in tag.name.lower())).id
+            private_bug_medium_prio = next((tag for tag in bug_channel.available_tags if 'medium' in tag.name.lower())).id
+            private_bug_high_prio = next((tag for tag in bug_channel.available_tags if 'high' in tag.name.lower())).id
+            private_bug_public_rel = next((tag for tag in bug_channel.available_tags if 'public' in tag.name.lower())).id
+            private_bug_patreon_rel = next((tag for tag in bug_channel.available_tags if 'patreon' in tag.name.lower())).id
+            private_bug_other_rel = next((tag for tag in bug_channel.available_tags if 'other' in tag.name.lower())).id
+        else:
+            await log(f'ERROR: Failed to get private bug channel tags: Channel {bug_channel} is not a forum channel')
     
     
 # ## Shifter Hunt 6
@@ -160,73 +245,157 @@ async def update_env_var(key, value):
 #         return
 #     await interaction.response.send_message('The bot rejects the food.')
 
-# ## Bug Reporter
-# class BugModal(discord.ui.Modal, title='Report a bug!'):
-#     title = discord.ui.TextInput(
-#         style = discord.TextStyle.short,
-#         label = "Title",
-#         required = True,
-#         placeholder = "What is the title of your bug report?"
-#     )
-    
-#     description = discord.ui.TextInput(
-#         style = discord.TextStyle.long,
-#         label = "Description",
-#         required = True,
-#         placeholder = "Describe the bug you encountered."
-#     )
-    
-#     steps = discord.ui.TextInput(
-#         style = discord.TextStyle.long,
-#         label = "Steps to Reproduce",
-#         required = True,
-#         placeholder = "Describe the steps to reproduce the bug."
-#     )
-    
-#     expected_behavior = discord.ui.TextInput(
-#         style = discord.TextStyle.long,
-#         label = "Mods in Use",
-#         required = True,
-#         placeholder = "Describe the expected behavior."
-#     )
-    
-#     expected_behavior = discord.ui.TextInput(
-#         style = discord.TextStyle.long,
-#         label = "Mods in Use",
-#         required = True,
-#         placeholder = "Describe the expected behavior."
-#     )
-    
-#     actual_behavior = discord.ui.TextInput(
-#         style = discord.TextStyle.long,
-#         label = "Mods in Use",
-#         required = True,
-#         placeholder = "Describe the actual behavior."
-#     )
-    
-#     async def on_submit(self, interaction: discord.Interaction):
-#         channel = await client.fetch_channel(bug_channel_id)
-#         if isinstance(channel, discord.ForumChannel):
-#             channel.create_thread(
-#                 name = self.title.value,
-#                 content = f'**Description:**\n {self.description.value}\n\n**Steps to Reproduce:**\n{self.steps.value}\n\n**Expected Behavior:**\n{self.expected_behavior.value}\n\n**Actual Behavior:**\n{self.actual_behavior.value}'
-#             )
+
+## Bug Reporter
+class BugDropdown(discord.ui.Select):
+    def __init__(self, placeholder, options, custom_id):
+        super().__init__(
+            placeholder=placeholder,
+            min_values=1,
+            max_values=1,
+            options=[discord.SelectOption(label=opt) for opt in options],
+            custom_id=custom_id
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        self.view.selected_options[self.custom_id] = self.values[0]
+        await interaction.response.defer()
+
+class ConfirmButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="Confirm", style=discord.ButtonStyle.green)
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.send_modal(BugModal(self.view.selected_options))
+        message = await interaction.original_response()
+        await message.edit(view=None)
+
+class BugReportView(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.selected_options = {}
         
-#         else:
-#             await log(f'ERROR: User <@{interaction.user.id}> encountered an issue when reporting a bug: Channel {channel} is not a forum channel!')
+        self.add_item(BugDropdown("Priority", ["Low", "Medium", "High"], "priority"))
+        self.add_item(BugDropdown("Release Type", ["Public", "Patreon", "Other"], "release_type"))
+        self.add_item(ConfirmButton())
+
+class BugModal(discord.ui.Modal):
+    def __init__(self, selected_options):
+        super().__init__(title="Report a bug!")
+        self.selected_options = selected_options
+        
+        self.add_item(discord.ui.TextInput(
+            style=discord.TextStyle.short,
+            label="Title",
+            required=True,
+            placeholder="What is the title of your bug report?"
+        ))
+        
+        self.add_item(discord.ui.TextInput(
+            style=discord.TextStyle.long,
+            label="Description",
+            required=True,
+            placeholder="Describe the bug you encountered."
+        ))
+        
+        self.add_item(discord.ui.TextInput(
+            style=discord.TextStyle.long,
+            label="Steps to Reproduce",
+            required=True,
+            placeholder="Describe the steps to reproduce the bug."
+        ))
+        
+        self.add_item(discord.ui.TextInput(
+            style=discord.TextStyle.long,
+            label="Expected Behavior vs Actual Behavior",
+            required=True,
+            placeholder="Explain what you expected to happen compared to what actually happened."
+        ))
+        
+        self.add_item(discord.ui.TextInput(
+            style=discord.TextStyle.long,
+            label="Additional Notes",
+            required=False,
+            placeholder="List any extra details and/or add links to any media you would like to share."
+        ))
+
+    async def on_submit(self, interaction: discord.Interaction):
+        user_id = interaction.user.id
+        current_time = time.time()
+        
+        await interaction.response.defer(ephemeral=True)
+        
+        channel = await client.fetch_channel(public_bug_channel_id)
+
+        priority_tags = {
+            "Low": public_bug_low_prio,
+            "Medium": public_bug_medium_prio,
+            "High": public_bug_high_prio
+        }
+
+        release_tags = {
+            "Public": public_bug_public_rel,
+            "Patreon": public_bug_patreon_rel,
+            "Other": public_bug_other_rel
+        }
+
+        applied_tags = [
+            priority_tags.get(self.selected_options.get("priority")),
+            release_tags.get(self.selected_options.get("release_type"))
+        ]
+
+        applied_tags = [
+            discord.Object(id=tag) for tag in [
+                priority_tags.get(self.selected_options.get("priority")),
+                release_tags.get(self.selected_options.get("release_type"))
+            ] if tag is not None
+        ]
+
+        if isinstance(channel, discord.ForumChannel):
+            await channel.create_thread(
+                name=self.children[0].value,  # Title field
+                content=f'# Bug report from {interaction.user.mention}\n\n'
+                        f'**Description:**\n {self.children[1].value}\n\n'
+                        f'**Steps to Reproduce:**\n{self.children[2].value}\n\n'
+                        f'**Expected Behavior vs Actual Behavior:**\n{self.children[3].value}\n\n'
+                        f'**Additional Notes:**\n{self.children[4].value}',
+                applied_tags=applied_tags
+            )
+            
+            bug_report_cooldowns[user_id] = current_time
+            
+            await interaction.followup.send("Bug report submitted successfully!", ephemeral=True)
+            
+        else:
+            await log(f'ERROR: User <@{interaction.user.id}> encountered an issue when reporting a bug: Channel {channel} is not a forum channel!')
+
+    async def on_error(self, interaction: discord.Interaction, error):
+        await log(f'ERROR: User <@{interaction.user.id}> encountered an issue when reporting a bug: {error}')
+
+
+@tree.command(name="bug", description="Report a bug!")
+async def bug(interaction: discord.Interaction):
+    user_id = interaction.user.id
+    current_time = time.time()
     
-#     async def on_error(self, interaction: discord.Interaction, error):
-#         await log(f'ERROR: User <@{interaction.user.id}> encountered an issue when reporting a bug: {error}')
+    # Check if user is on cooldown
+    if user_id in bug_report_cooldowns:
+        last_used = bug_report_cooldowns[user_id]
+        cooldown_time = 180  # 3 minutes
+        time_left = cooldown_time - (current_time - last_used)
 
-# @tree.command(name='bug',description='Report a bug!')
-# async def bug(interaction:discord.Interaction):
-#     await log(f'LOG: User <@{interaction.user.id}> ran command "bug" in channel {interaction.channel}')
-#     await interaction.response.send_message('Before reporting your bug, please answer the following questions:',ephemeral=True)
-    
+        if time_left > 0:
+            await interaction.response.send_message(
+                f"Please wait {int(time_left)} seconds before submitting another bug report.", ephemeral=True
+            )
+            return
 
-#     bug_modal = BugModal()
-#     await interaction.response.send_modal(bug_modal)
+    await log(f'LOG: User <@{interaction.user.id}> ran command "bug" in channel {interaction.channel}')
+    await interaction.response.send_message(
+        "Before reporting your bug, please answer the following questions:", ephemeral=True, view=BugReportView()
+    )
 
+bug_report_cooldowns = {}
 
 ## Help Commands
 @tree.command(name='wiki',description='Get the link to the wiki!')
@@ -369,8 +538,10 @@ class SuggestionReviewView(View):
         await interaction.response.send_message("Suggestion rejected!", ephemeral=True)
         await self.original_thread.send("This suggestion has been rejected!")
         await log(f'LOG: Suggestion "{self.original_thread.name}" has been rejected')
-        
+
+
 # Thread Pinning
+
 
 
 # Modmail
@@ -399,6 +570,7 @@ async def on_message(message):
             await log(f'LOG: Creating modmail thread for user <@{message.author.id}>')
         
         await modmail_thread.send(f"**[MODMAIL] {message.author.mention}:** {message.content}")
+        await message.add_reaction("📨")
         
         # # For the hunt
         # if hunt_secret_word in message.content.lower():
@@ -407,8 +579,8 @@ async def on_message(message):
     if isinstance(message.channel, discord.Thread) and message.channel.parent_id == modmail_channel.id:
         user = await client.fetch_user(int(message.channel.name.split(" - ")[0]))
         await user.send(f"**[MODMAIL] {message.author.mention}:** {message.content}")
+        await message.add_reaction("📨")
     
-    await message.add_reaction("📨")
 
 @client.event
 async def on_message_edit(before, after):
@@ -440,18 +612,9 @@ async def on_message_delete(message):
             modmail_thread = open_threads[user_thread_name]
             await modmail_thread.send(f"**[MODMAIL] {message.author.mention}:** *Deleted Message:* {message.content}")
 
-# @client.event
-# async def on_message(message):
-#     if message.author == client.user:
-#         return
-    
-#     modmail_channel = client.get_channel(modmail_channel_id)
-#     if isinstance(message.channel, discord.Thread) and message.channel.parent_id == modmail_channel.id:
-#         user = int(message.channel.name.split(" - ")[0])
-#         await user.send(f"**[MODMAIL] {message.author.mention}:** {message.content}")
-#         await message.add_reaction("📨")
 
 # Moderation
+
 
 
 # Logs
