@@ -3,7 +3,7 @@ import os
 import sys
 
 import discord
-from discord import app_commands
+from discord import ui, app_commands
 from dotenv import load_dotenv
 from discord.ext import commands
 from discord.ui import View, Button
@@ -18,6 +18,8 @@ rejected_tag_id = int(os.getenv('REJECTED_TAG_ID'))
 discussion_tag_id = int(os.getenv('DISCUSSION_TAG_ID'))
 required_reactions = int(os.getenv('REQUIRED_REACTIONS'))
 log_channel_id = int(os.getenv('LOG_CHANNEL_ID'))
+bug_channel_id = int(os.getenv('BUG_CHANNEL_ID'))
+modmail_channel_id = int(os.getenv('MODMAIL_CHANNEL_ID'))
     
     
 # Define intents
@@ -45,7 +47,9 @@ async def on_ready():
     else:
         await log(f'ERROR: Failed to get vote reaction: Channel {suggestions_channel_id} is not a forum channel')
 
-# Config
+# Commands
+
+## Config
 bot_admin = [
     293738089787031552, # Fanfo
     279823686532333570, # Nijama
@@ -67,7 +71,9 @@ async def set_config(interaction:discord.Interaction, config: str, value: str):
         'REJECTED_TAG_ID',
         'DISCUSSION_TAG_ID',
         'REQUIRED_REACTIONS',
-        'LOG_CHANNEL_ID'
+        'LOG_CHANNEL_ID',
+        'BUG_CHANNEL_ID',
+        'MODMAIL_CHANNEL_ID'
     ]
     
     if config.upper().replace(' ', '_') in configs:
@@ -93,7 +99,9 @@ async def get_config(interaction:discord.Interaction):
         'REJECTED_TAG_ID': os.getenv('REJECTED_TAG_ID'),
         'DISCUSSION_TAG_ID': os.getenv('DISCUSSION_TAG_ID'),
         'REQUIRED_REACTIONS': os.getenv('REQUIRED_REACTIONS'),
-        'LOG_CHANNEL_ID': os.getenv('LOG_CHANNEL_ID')
+        'LOG_CHANNEL_ID': os.getenv('LOG_CHANNEL_ID'),
+        'BUG_CHANNEL_ID': os.getenv('BUG_CHANNEL_ID'),
+        'MODMAIL_CHANNEL_ID': os.getenv('MODMAIL_CHANNEL_ID')
     }
     
     config_message = "\n".join([f"{key}: {value}" for key, value in configs.items()])
@@ -138,19 +146,89 @@ async def update_env_var(key, value):
             await log(f'ERROR: Failed to get vote reaction: Channel {suggestions_channel_id} is not a forum channel')
     
     
-# Shifter Hunt 6
-bot_food = str(os.getenv('BOT_FOOD'))
-correct_food_response = str(os.getenv('CORRECT_FOOD_RESPONSE'))
+# ## Shifter Hunt 6
+# bot_food = str(os.getenv('BOT_FOOD'))
+# correct_food_response = str(os.getenv('CORRECT_FOOD_RESPONSE'))
+# hunt_secret_word = str(os.getenv('SECRET_WORD'))
 
-@tree.command(name='feed',description='Feed the bot!')
-async def feed(interaction:discord.Interaction, food: str):
-    if food == bot_food:
-        await interaction.response.send_message(correct_food_response, ephemeral=True)
-        await log(f'LOG: User <@{interaction.user.id}> used the correct food <@690342949556584690>')
-        return
-    await interaction.response.send_message('The bot rejects the food.')
 
-# Help Commands
+# @tree.command(name='feed',description='Feed the bot!')
+# async def feed(interaction:discord.Interaction, food: str):
+#     if food == bot_food:
+#         await interaction.response.send_message(correct_food_response, ephemeral=True)
+#         await log(f'LOG: User <@{interaction.user.id}> used the correct food <@690342949556584690>')
+#         return
+#     await interaction.response.send_message('The bot rejects the food.')
+
+# ## Bug Reporter
+# class BugModal(discord.ui.Modal, title='Report a bug!'):
+#     title = discord.ui.TextInput(
+#         style = discord.TextStyle.short,
+#         label = "Title",
+#         required = True,
+#         placeholder = "What is the title of your bug report?"
+#     )
+    
+#     description = discord.ui.TextInput(
+#         style = discord.TextStyle.long,
+#         label = "Description",
+#         required = True,
+#         placeholder = "Describe the bug you encountered."
+#     )
+    
+#     steps = discord.ui.TextInput(
+#         style = discord.TextStyle.long,
+#         label = "Steps to Reproduce",
+#         required = True,
+#         placeholder = "Describe the steps to reproduce the bug."
+#     )
+    
+#     expected_behavior = discord.ui.TextInput(
+#         style = discord.TextStyle.long,
+#         label = "Mods in Use",
+#         required = True,
+#         placeholder = "Describe the expected behavior."
+#     )
+    
+#     expected_behavior = discord.ui.TextInput(
+#         style = discord.TextStyle.long,
+#         label = "Mods in Use",
+#         required = True,
+#         placeholder = "Describe the expected behavior."
+#     )
+    
+#     actual_behavior = discord.ui.TextInput(
+#         style = discord.TextStyle.long,
+#         label = "Mods in Use",
+#         required = True,
+#         placeholder = "Describe the actual behavior."
+#     )
+    
+#     async def on_submit(self, interaction: discord.Interaction):
+#         channel = await client.fetch_channel(bug_channel_id)
+#         if isinstance(channel, discord.ForumChannel):
+#             channel.create_thread(
+#                 name = self.title.value,
+#                 content = f'**Description:**\n {self.description.value}\n\n**Steps to Reproduce:**\n{self.steps.value}\n\n**Expected Behavior:**\n{self.expected_behavior.value}\n\n**Actual Behavior:**\n{self.actual_behavior.value}'
+#             )
+        
+#         else:
+#             await log(f'ERROR: User <@{interaction.user.id}> encountered an issue when reporting a bug: Channel {channel} is not a forum channel!')
+    
+#     async def on_error(self, interaction: discord.Interaction, error):
+#         await log(f'ERROR: User <@{interaction.user.id}> encountered an issue when reporting a bug: {error}')
+
+# @tree.command(name='bug',description='Report a bug!')
+# async def bug(interaction:discord.Interaction):
+#     await log(f'LOG: User <@{interaction.user.id}> ran command "bug" in channel {interaction.channel}')
+#     await interaction.response.send_message('Before reporting your bug, please answer the following questions:',ephemeral=True)
+    
+
+#     bug_modal = BugModal()
+#     await interaction.response.send_modal(bug_modal)
+
+
+## Help Commands
 @tree.command(name='wiki',description='Get the link to the wiki!')
 async def wiki(interaction:discord.Interaction):
     await interaction.response.send_message('https://sncraft.fanfus.com/wiki')
@@ -292,16 +370,95 @@ class SuggestionReviewView(View):
         await self.original_thread.send("This suggestion has been rejected!")
         await log(f'LOG: Suggestion "{self.original_thread.name}" has been rejected')
         
+# Thread Pinning
+
+
+# Modmail
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+    
+    modmail_channel = client.get_channel(modmail_channel_id)
+    
+    if isinstance(message.channel, discord.DMChannel):
+        threads = list(modmail_channel.threads) + [thread async for thread in modmail_channel.archived_threads(limit=None)]
+        open_threads = {thread.name: thread for thread in threads}
+        user_thread_name = f"{message.author.id} - {message.author}"
+        await log(f'LOG: Modmail recieved from user <@{message.author.id}>')
+
+        if user_thread_name in open_threads:
+            modmail_thread = open_threads[user_thread_name]
+        else:
+            create_thread = await modmail_channel.create_thread(
+                name = user_thread_name,
+                content = f"Modmail from {message.author.mention}",
+                auto_archive_duration=10080 # 7 days
+            )
+            modmail_thread = create_thread.thread
+            await log(f'LOG: Creating modmail thread for user <@{message.author.id}>')
+        
+        await modmail_thread.send(f"**[MODMAIL] {message.author.mention}:** {message.content}")
+        
+        # # For the hunt
+        # if hunt_secret_word in message.content.lower():
+        #     await modmail_thread.send(f"<@690342949556584690> user {message.author.mention} has completed the hunt!")
+    
+    if isinstance(message.channel, discord.Thread) and message.channel.parent_id == modmail_channel.id:
+        user = await client.fetch_user(int(message.channel.name.split(" - ")[0]))
+        await user.send(f"**[MODMAIL] {message.author.mention}:** {message.content}")
+    
+    await message.add_reaction("📨")
+
+@client.event
+async def on_message_edit(before, after):
+    if before.author == client.user:
+        return
+    
+    if isinstance(before.channel, discord.DMChannel):
+        modmail_channel = client.get_channel(modmail_channel_id)
+        threads = list(modmail_channel.threads) + [thread async for thread in modmail_channel.archived_threads(limit=None)]
+        open_threads = {thread.name: thread for thread in threads}
+        user_thread_name = f"{before.author.id} - {before.author}"
+        
+        if user_thread_name in open_threads:
+            modmail_thread = open_threads[user_thread_name]
+            await modmail_thread.send(f"**[MODMAIL] {before.author.mention}:** *Edited Message*\n**Before:** {before.content}\n**After:** {after.content}")
+
+@client.event
+async def on_message_delete(message):
+    if message.author == client.user:
+        return
+    
+    if isinstance(message.channel, discord.DMChannel):
+        modmail_channel = client.get_channel(modmail_channel_id)
+        threads = list(modmail_channel.threads) + [thread async for thread in modmail_channel.archived_threads(limit=None)]
+        open_threads = {thread.name: thread for thread in threads}
+        user_thread_name = f"{message.author.id} - {message.author}"
+        
+        if user_thread_name in open_threads:
+            modmail_thread = open_threads[user_thread_name]
+            await modmail_thread.send(f"**[MODMAIL] {message.author.mention}:** *Deleted Message:* {message.content}")
+
+# @client.event
+# async def on_message(message):
+#     if message.author == client.user:
+#         return
+    
+#     modmail_channel = client.get_channel(modmail_channel_id)
+#     if isinstance(message.channel, discord.Thread) and message.channel.parent_id == modmail_channel.id:
+#         user = int(message.channel.name.split(" - ")[0])
+#         await user.send(f"**[MODMAIL] {message.author.mention}:** {message.content}")
+#         await message.add_reaction("📨")
+
+# Moderation
+
+
 # Logs
 async def log(message):
     print(message)
     log_channel = client.get_channel(log_channel_id)
     await log_channel.send(message.replace("LOG:","**LOG:**").replace("WARN:","**WARN:**").replace("ERROR:","**ERROR:**"))
-
-# Modmail
-
-
-# Moderation
 
 
 client.run(TOKEN)
