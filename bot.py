@@ -13,30 +13,12 @@ load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 suggestions_channel_id = int(os.getenv('SUGGESTIONS_CHANNEL_ID'))
 review_channel_id = int(os.getenv('REVIEW_CHANNEL_ID'))
-review_tag_id = int(os.getenv('REVIEW_TAG_ID'))
-accepted_tag_id = int(os.getenv('ACCEPTED_TAG_ID'))
-rejected_tag_id = int(os.getenv('REJECTED_TAG_ID'))
-discussion_tag_id = int(os.getenv('DISCUSSION_TAG_ID'))
 required_reactions = int(os.getenv('REQUIRED_REACTIONS'))
 log_channel_id = int(os.getenv('LOG_CHANNEL_ID'))
 modmail_channel_id = int(os.getenv('MODMAIL_CHANNEL_ID'))
 public_bug_channel_id = int(os.getenv('PUBLIC_BUG_CHANNEL_ID'))
 private_bug_channel_id = int(os.getenv('PRIVATE_BUG_CHANNEL_ID'))
 
-# public_bug_priority_low_tag = int(os.getenv('PUBLIC_BUG_PRIORITY_LOW_TAG'))
-# public_bug_priority_medium_tag = int(os.getenv('PUBLIC_BUG_PRIORITY_MEDIUM_TAG'))
-# public_bug_priority_high_tag = int(os.getenv('PUBLIC_BUG_PRIORITY_HIGH_TAG'))
-# public_bug_release_public_tag = int(os.getenv('PUBLIC_BUG_RELEASE_PUBLIC_TAG'))
-# public_bug_release_patreon_tag = int(os.getenv('PUBLIC_BUG_RELEASE_PATREON_TAG'))
-# public_bug_release_other_tag = int(os.getenv('PUBLIC_BUG_RELEASE_OTHER_TAG'))
-# public_bug_channel_tag = int(os.getenv('PRIVATE_BUG_CHANNEL_ID'))
-# public_bug_priority_low_tag = int(os.getenv('PRIVATE_BUG_PRIORITY_LOW_TAG'))
-# public_bug_priority_low_tag = int(os.getenv('PRIVATE_BUG_PRIORITY_MEDIUM_TAG'))
-# public_bug_priority_low_tag = int(os.getenv('PRIVATE_BUG_PRIORITY_HIGH_TAG'))
-# public_bug_release_low_tag = int(os.getenv('PRIVATE_BUG_RELEASE_PUBLIC_TAG'))
-# public_bug_release_low_tag = int(os.getenv('PRIVATE_BUG_RELEASE_PATREON_TAG'))
-# public_bug_release_low_tag = int(os.getenv('PRIVATE_BUG_RELEASE_OTHER_TAG'))
-    
 # Define intents
 intents = discord.Intents.all()
 
@@ -49,7 +31,7 @@ tree = app_commands.CommandTree(client)
 async def on_ready():
     await tree.sync()
     await log(f'LOG: {client.user} has connected to Discord!')
-    # Get Vote Reaction
+    
     global vote_reaction
     suggestions_channel = await client.fetch_channel(suggestions_channel_id)
     if isinstance(suggestions_channel, discord.ForumChannel):
@@ -57,11 +39,19 @@ async def on_ready():
             vote_reaction = suggestions_channel.default_reaction_emoji
             await log(f'LOG: Vote reaction found for channel {suggestions_channel_id}. Using {vote_reaction}')
         else:
-            await log('WARN: No vote reaction found, using default')
+            await log('WARN: No vote reaction found, using default: 👍')
             vote_reaction = "👍"
+        global accepted_tag_id
+        global rejected_tag_id
+        global review_tag_id
+        global discussion_tag_id
+        accepted_tag_id = next((tag for tag in suggestions_channel.available_tags if 'accepted' in tag.name.lower())).id
+        rejected_tag_id = next((tag for tag in suggestions_channel.available_tags if 'rejected' in tag.name.lower())).id
+        review_tag_id = next((tag for tag in suggestions_channel.available_tags if 'review' in tag.name.lower())).id
+        discussion_tag_id = next((tag for tag in suggestions_channel.available_tags if 'discussion' in tag.name.lower())).id
     else:
         await log(f'ERROR: Failed to get vote reaction: Channel {suggestions_channel_id} is not a forum channel')
-        
+
     global public_bug_low_prio
     global public_bug_medium_prio
     global public_bug_high_prio
@@ -78,7 +68,7 @@ async def on_ready():
         public_bug_other_rel = next((tag for tag in public_bug_channel.available_tags if 'other' in tag.name.lower())).id
     else:
         await log(f'ERROR: Failed to get public bug channel tags: Channel {public_bug_channel} is not a forum channel')
-        
+
     global private_bug_low_prio
     global private_bug_medium_prio
     global private_bug_high_prio
@@ -95,8 +85,6 @@ async def on_ready():
         private_bug_other_rel = next((tag for tag in private_bug_channel.available_tags if 'other' in tag.name.lower())).id
     else:
         await log(f'ERROR: Failed to get private bug channel tags: Channel {private_bug_channel} is not a forum channel')
-
-# Commands
 
 ## Config
 bot_admin = [
@@ -115,13 +103,10 @@ async def set_config(interaction:discord.Interaction, config: str, value: str):
     configs = [
         'SUGGESTIONS_CHANNEL_ID',
         'REVIEW_CHANNEL_ID',
-        'REVIEW_TAG_ID'
-        'ACCEPTED_TAG_ID',
-        'REJECTED_TAG_ID',
-        'DISCUSSION_TAG_ID',
         'REQUIRED_REACTIONS',
         'LOG_CHANNEL_ID',
-        'BUG_CHANNEL_ID',
+        'PUBLIC_BUG_CHANNEL_ID',
+        'PRIVATE_BUG_CHANNEL_ID',
         'MODMAIL_CHANNEL_ID'
     ]
     
@@ -132,31 +117,28 @@ async def set_config(interaction:discord.Interaction, config: str, value: str):
     else:
         await interaction.response.send_message(f'Invalid config key: `{config}`. Valid config keys: `{configs}`', ephemeral=True)
         await log(f'ERROR: Invalid config key `{config}` provided by user <@{interaction.user.id}>')
-        
+
 @tree.command(name='get_config',description='View the current configuration of the bot!')
 async def get_config(interaction:discord.Interaction):
     if interaction.user.id not in bot_admin:
         await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
         await log(f'ERROR: User <@{interaction.user.id}> attempted to use `get_config` without permission')
         return
-    
+
     configs = {
         'SUGGESTIONS_CHANNEL_ID': os.getenv('SUGGESTIONS_CHANNEL_ID'),
         'REVIEW_CHANNEL_ID': os.getenv('REVIEW_CHANNEL_ID'),
-        'REVIEW_TAG_ID': os.getenv('REVIEW_TAG_ID'),
-        'ACCEPTED_TAG_ID': os.getenv('ACCEPTED_TAG_ID'),
-        'REJECTED_TAG_ID': os.getenv('REJECTED_TAG_ID'),
-        'DISCUSSION_TAG_ID': os.getenv('DISCUSSION_TAG_ID'),
         'REQUIRED_REACTIONS': os.getenv('REQUIRED_REACTIONS'),
         'LOG_CHANNEL_ID': os.getenv('LOG_CHANNEL_ID'),
-        'BUG_CHANNEL_ID': os.getenv('BUG_CHANNEL_ID'),
+        'PUBLIC_BUG_CHANNEL_ID': os.getenv('BUG_CHANNEL_ID'),
+        'PRIVATE_BUG_CHANNEL_ID': os.getenv('BUG_CHANNEL_ID'),
         'MODMAIL_CHANNEL_ID': os.getenv('MODMAIL_CHANNEL_ID')
     }
     
     config_message = "\n".join([f"{key}: {value}" for key, value in configs.items()])
     await interaction.response.send_message(f"**Current Configurations:**\n```\n{config_message}\n```", ephemeral=True)
     await log(f'LOG: User <@{interaction.user.id}> viewed the config')
-  
+
 async def update_env_var(key, value):
     # Read current .env file content
     with open('.env', 'r') as file:
@@ -177,7 +159,7 @@ async def update_env_var(key, value):
     # Write the updated content back to the .env file
     with open('.env', 'w') as file:
         file.writelines(lines)
-        
+
     # Update the vars in the bot's memory
     globals()[key.lower()] = value
     
@@ -189,11 +171,19 @@ async def update_env_var(key, value):
                 vote_reaction = suggestions_channel.default_reaction_emoji
                 await log(f'LOG: Vote reaction found for channel {suggestions_channel_id}. Using {vote_reaction}')
             else:
-                await log('WARN: No vote reaction found, using default')
+                await log('WARN: No vote reaction found, using default: 👍')
                 vote_reaction = "👍"
+            global accepted_tag_id
+            global rejected_tag_id
+            global review_tag_id
+            global discussion_tag_id
+            accepted_tag_id = next((tag for tag in suggestions_channel.available_tags if 'accepted' in tag.name.lower())).id
+            rejected_tag_id = next((tag for tag in suggestions_channel.available_tags if 'rejected' in tag.name.lower())).id
+            review_tag_id = next((tag for tag in suggestions_channel.available_tags if 'review' in tag.name.lower())).id
+            discussion_tag_id = next((tag for tag in suggestions_channel.available_tags if 'discussion' in tag.name.lower())).id
         else:
             await log(f'ERROR: Failed to get vote reaction: Channel {suggestions_channel} is not a forum channel')
-            
+
     if key == 'PUBLIC_BUG_CHANNEL_ID':
         global public_bug_low_prio
         global public_bug_medium_prio
@@ -353,7 +343,7 @@ class BugModal(discord.ui.Modal):
 
         if isinstance(channel, discord.ForumChannel):
             await channel.create_thread(
-                name=self.children[0].value,  # Title field
+                name=self.children[0].value,
                 content=f'# Bug report from {interaction.user.mention}\n\n'
                         f'**Description:**\n {self.children[1].value}\n\n'
                         f'**Steps to Reproduce:**\n{self.children[2].value}\n\n'
@@ -458,8 +448,8 @@ async def coral(interaction:discord.Interaction):
     await interaction.response.send_message('https://www.planetminecraft.com/project/coral-5944252/')
     await log(f'LOG: User <@{interaction.user.id}> ran command "coral" in channel {interaction.channel}')
 
-@tree.command(name='config',description='Get the command to access the config!')
-async def config(interaction:discord.Interaction):
+@tree.command(name='snc_config',description='Get the command to access the config!')
+async def snc_config(interaction:discord.Interaction):
     await interaction.response.send_message('`/function snc:api/config`')
     await log(f'LOG: User <@{interaction.user.id}> ran command "config" in channel {interaction.channel}')
 
@@ -541,7 +531,6 @@ class SuggestionReviewView(View):
 
 
 # Thread Pinning
-
 
 
 # Modmail
