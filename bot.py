@@ -451,7 +451,7 @@ async def coral(interaction:discord.Interaction):
 @tree.command(name='snc_config',description='Get the command to access the config!')
 async def snc_config(interaction:discord.Interaction):
     await interaction.response.send_message('`/function snc:api/config`')
-    await log(f'LOG: User <@{interaction.user.id}> ran command "config" in channel {interaction.channel}')
+    await log(f'LOG: User <@{interaction.user.id}> ran command "snc_config" in channel {interaction.channel}')
 
 @tree.command(name='chainsaw',description='Get a link to Fanfo\'s adventure map, Chainsaw Craft!')
 async def chainsaw(interaction:discord.Interaction):
