@@ -399,7 +399,7 @@ async def villager_guide(interaction:discord.Interaction):
     await interaction.response.send_message('https://www.youtube.com/watch?v=srcHjwWjUJ0')
     await log(f'LOG: User <@{interaction.user.id}> ran command "villager_guide" in channel {interaction.channel}')
 
-@tree.command(name='spawn_blocks',description='Check what blcoks titans can spawn on!')
+@tree.command(name='spawn_blocks',description='Check what blocks titans can spawn on!')
 async def spawn_blocks(interaction:discord.Interaction):
     await interaction.response.send_message('https://cdn.discordapp.com/attachments/953767082703601757/1219415927397814312/image.png?ex=66147314&is=6601fe14&hm=32da2bc67612c32eab8ac253427dc8e6081d5ba64f402b7c0c15f753436b08ce&')
     await log(f'LOG: User <@{interaction.user.id}> ran command "spawn_blocks" in channel {interaction.channel}')
