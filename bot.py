@@ -32,6 +32,7 @@ async def on_ready():
     await tree.sync()
     await log(f'LOG: {client.user} has connected to Discord!')
     
+    await client.change_presence(activity=discord.CustomActivity(name="📨 DM for modmail!"))
     global vote_reaction
     suggestions_channel = await client.fetch_channel(suggestions_channel_id)
     if isinstance(suggestions_channel, discord.ForumChannel):
