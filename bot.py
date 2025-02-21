@@ -234,7 +234,7 @@ async def feed(interaction:discord.Interaction, food: str):
         await interaction.response.send_message(correct_food_response, ephemeral=True)
         await log(f'LOG: User <@{interaction.user.id}> used the correct food <@690342949556584690>')
         return
-    await interaction.response.send_message('The bot rejects the food.')
+    await interaction.response.send_message('The bot rejects the food.', ephemeral=True)
 
 
 ## Bug Reporter
