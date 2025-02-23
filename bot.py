@@ -29,63 +29,79 @@ tree = app_commands.CommandTree(client)
 # Runs on startup
 @client.event
 async def on_ready():
-    await tree.sync()
-    await log(f'LOG: {client.user} has connected to Discord!')
-    
-    await client.change_presence(activity=discord.CustomActivity(name="📨 DM for modmail!"))
-    global vote_reaction
-    suggestions_channel = await client.fetch_channel(suggestions_channel_id)
-    if isinstance(suggestions_channel, discord.ForumChannel):
-        if suggestions_channel.default_reaction_emoji:
-            vote_reaction = suggestions_channel.default_reaction_emoji
-            await log(f'LOG: Vote reaction found for channel {suggestions_channel_id}. Using {vote_reaction}')
-        else:
-            await log('WARN: No vote reaction found, using default: 👍')
-            vote_reaction = "👍"
-        global accepted_tag_id
-        global rejected_tag_id
-        global review_tag_id
-        global discussion_tag_id
-        accepted_tag_id = next((tag for tag in suggestions_channel.available_tags if 'accepted' in tag.name.lower())).id
-        rejected_tag_id = next((tag for tag in suggestions_channel.available_tags if 'rejected' in tag.name.lower())).id
-        review_tag_id = next((tag for tag in suggestions_channel.available_tags if 'review' in tag.name.lower())).id
-        discussion_tag_id = next((tag for tag in suggestions_channel.available_tags if 'discussion' in tag.name.lower())).id
-    else:
-        await log(f'ERROR: Failed to get vote reaction: Channel {suggestions_channel_id} is not a forum channel')
-
-    global public_bug_low_prio
-    global public_bug_medium_prio
-    global public_bug_high_prio
-    global public_bug_public_rel
-    global public_bug_patreon_rel
-    global public_bug_other_rel
-    public_bug_channel = await client.fetch_channel(public_bug_channel_id)
-    if isinstance(public_bug_channel, discord.ForumChannel):
-        public_bug_low_prio = next((tag for tag in public_bug_channel.available_tags if 'low' in tag.name.lower())).id
-        public_bug_medium_prio = next((tag for tag in public_bug_channel.available_tags if 'medium' in tag.name.lower())).id
-        public_bug_high_prio = next((tag for tag in public_bug_channel.available_tags if 'high' in tag.name.lower())).id
-        public_bug_public_rel = next((tag for tag in public_bug_channel.available_tags if 'public' in tag.name.lower())).id
-        public_bug_patreon_rel = next((tag for tag in public_bug_channel.available_tags if 'patreon' in tag.name.lower())).id
-        public_bug_other_rel = next((tag for tag in public_bug_channel.available_tags if 'other' in tag.name.lower())).id
-    else:
-        await log(f'ERROR: Failed to get public bug channel tags: Channel {public_bug_channel} is not a forum channel')
-
-    global private_bug_low_prio
-    global private_bug_medium_prio
-    global private_bug_high_prio
-    global private_bug_public_rel
-    global private_bug_patreon_rel
-    global private_bug_other_rel
-    private_bug_channel = await client.fetch_channel(public_bug_channel_id)
-    if isinstance(private_bug_channel, discord.ForumChannel):
-        private_bug_low_prio = next((tag for tag in private_bug_channel.available_tags if 'low' in tag.name.lower())).id
-        private_bug_medium_prio = next((tag for tag in private_bug_channel.available_tags if 'medium' in tag.name.lower())).id
-        private_bug_high_prio = next((tag for tag in private_bug_channel.available_tags if 'high' in tag.name.lower())).id
-        private_bug_public_rel = next((tag for tag in private_bug_channel.available_tags if 'public' in tag.name.lower())).id
-        private_bug_patreon_rel = next((tag for tag in private_bug_channel.available_tags if 'patreon' in tag.name.lower())).id
-        private_bug_other_rel = next((tag for tag in private_bug_channel.available_tags if 'other' in tag.name.lower())).id
-    else:
-        await log(f'ERROR: Failed to get private bug channel tags: Channel {private_bug_channel} is not a forum channel')
+    try:
+        await tree.sync()
+        await log(f'LOG: {client.user} has connected to Discord!')
+        await client.change_presence(activity=discord.CustomActivity(name="📨 DM for modmail!"))
+        
+        try:
+            global vote_reaction
+            suggestions_channel = await client.fetch_channel(suggestions_channel_id)
+            if isinstance(suggestions_channel, discord.ForumChannel):
+                if suggestions_channel.default_reaction_emoji:
+                    vote_reaction = suggestions_channel.default_reaction_emoji
+                    await log(f'LOG: Vote reaction found for channel {suggestions_channel_id}. Using {vote_reaction}')
+                else:
+                    await log('WARN: No vote reaction found, using default: 👍')
+                    vote_reaction = "👍"
+                global accepted_tag_id
+                global rejected_tag_id
+                global review_tag_id
+                global discussion_tag_id
+                accepted_tag_id = next((tag for tag in suggestions_channel.available_tags if 'accepted' in tag.name.lower())).id
+                rejected_tag_id = next((tag for tag in suggestions_channel.available_tags if 'rejected' in tag.name.lower())).id
+                review_tag_id = next((tag for tag in suggestions_channel.available_tags if 'review' in tag.name.lower())).id
+                discussion_tag_id = next((tag for tag in suggestions_channel.available_tags if 'discussion' in tag.name.lower())).id
+            else:
+                await log(f'ERROR: Failed to get vote reaction: Channel {suggestions_channel_id} is not a forum channel')
+                
+        except Exception as e:
+            await log(f'ERROR: Encountered an error when checking for suggestions vote reaction: {e}')
+            
+        try:
+            global public_bug_low_prio
+            global public_bug_medium_prio
+            global public_bug_high_prio
+            global public_bug_public_rel
+            global public_bug_patreon_rel
+            global public_bug_other_rel
+            public_bug_channel = await client.fetch_channel(public_bug_channel_id)
+            if isinstance(public_bug_channel, discord.ForumChannel):
+                public_bug_low_prio = next((tag for tag in public_bug_channel.available_tags if 'low' in tag.name.lower())).id
+                public_bug_medium_prio = next((tag for tag in public_bug_channel.available_tags if 'medium' in tag.name.lower())).id
+                public_bug_high_prio = next((tag for tag in public_bug_channel.available_tags if 'high' in tag.name.lower())).id
+                public_bug_public_rel = next((tag for tag in public_bug_channel.available_tags if 'public' in tag.name.lower())).id
+                public_bug_patreon_rel = next((tag for tag in public_bug_channel.available_tags if 'patreon' in tag.name.lower())).id
+                public_bug_other_rel = next((tag for tag in public_bug_channel.available_tags if 'other' in tag.name.lower())).id
+            else:
+                await log(f'ERROR: Failed to get public bug channel tags: Channel {public_bug_channel} is not a forum channel')
+                
+        except Exception as e:
+            await log(f'ERROR: Encountered an error when checking for public bug channel tags: {e}')
+            
+        try:
+            global private_bug_low_prio
+            global private_bug_medium_prio
+            global private_bug_high_prio
+            global private_bug_public_rel
+            global private_bug_patreon_rel
+            global private_bug_other_rel
+            private_bug_channel = await client.fetch_channel(public_bug_channel_id)
+            if isinstance(private_bug_channel, discord.ForumChannel):
+                private_bug_low_prio = next((tag for tag in private_bug_channel.available_tags if 'low' in tag.name.lower())).id
+                private_bug_medium_prio = next((tag for tag in private_bug_channel.available_tags if 'medium' in tag.name.lower())).id
+                private_bug_high_prio = next((tag for tag in private_bug_channel.available_tags if 'high' in tag.name.lower())).id
+                private_bug_public_rel = next((tag for tag in private_bug_channel.available_tags if 'public' in tag.name.lower())).id
+                private_bug_patreon_rel = next((tag for tag in private_bug_channel.available_tags if 'patreon' in tag.name.lower())).id
+                private_bug_other_rel = next((tag for tag in private_bug_channel.available_tags if 'other' in tag.name.lower())).id
+            else:
+                await log(f'ERROR: Failed to get private bug channel tags: Channel {private_bug_channel} is not a forum channel')
+                
+        except Exception as e:
+            await log(f'ERROR: Encountered an error when checking for private bug channel tags: {e}')
+            
+    except Exception as e:
+        await log(f'ERROR: Encountered an error when loading the bot: {e}')
 
 ## Config
 bot_admin = [
@@ -464,36 +480,40 @@ async def chainsaw(interaction:discord.Interaction):
 # Suggestions Manager
 @client.event
 async def on_raw_reaction_add(payload):
-    channel = client.get_channel(payload.channel_id)
-    
-    if isinstance(channel, discord.Thread):
-        parent_channel = channel.parent
-        if parent_channel.id == suggestions_channel_id:
-             message = await channel.fetch_message(payload.message_id)
-             for reaction in message.reactions:
-                 if reaction.count >= required_reactions and reaction.emoji == vote_reaction:
-                    if not any(tag.id == review_tag_id or tag.id == accepted_tag_id or tag.id == rejected_tag_id or tag.id == discussion_tag_id for tag in channel.applied_tags):
-                        review_tag_object = discord.utils.get(parent_channel.available_tags, id=review_tag_id)
-                        accepted_tag_object = discord.utils.get(parent_channel.available_tags, id=accepted_tag_id)
-                        rejected_tag_object = discord.utils.get(parent_channel.available_tags, id=rejected_tag_id)
-                        if review_tag_object:
-                            await log(f'LOG: Suggestion "{channel}" marked for review')
-                            await channel.add_tags(review_tag_object)
-                            await channel.send('This suggestion has been marked for review!')
-                            review_channel = client.get_channel(review_channel_id)
-                            embed = discord.Embed(
-                                    color = discord.Color.yellow(),
-                                    title = channel.name,
-                                    description = message.content
+    try:
+        channel = client.get_channel(payload.channel_id)
+        
+        if isinstance(channel, discord.Thread):
+            parent_channel = channel.parent
+            if parent_channel.id == suggestions_channel_id:
+                message = await channel.fetch_message(payload.message_id)
+                for reaction in message.reactions:
+                    if reaction.count >= required_reactions and reaction.emoji == vote_reaction:
+                        if not any(tag.id == review_tag_id or tag.id == accepted_tag_id or tag.id == rejected_tag_id or tag.id == discussion_tag_id for tag in channel.applied_tags):
+                            review_tag_object = discord.utils.get(parent_channel.available_tags, id=review_tag_id)
+                            accepted_tag_object = discord.utils.get(parent_channel.available_tags, id=accepted_tag_id)
+                            rejected_tag_object = discord.utils.get(parent_channel.available_tags, id=rejected_tag_id)
+                            if review_tag_object:
+                                await log(f'LOG: Suggestion "{channel}" marked for review')
+                                await channel.add_tags(review_tag_object)
+                                await channel.send('This suggestion has been marked for review!')
+                                review_channel = client.get_channel(review_channel_id)
+                                embed = discord.Embed(
+                                        color = discord.Color.yellow(),
+                                        title = channel.name,
+                                        description = message.content
+                                    )
+                                embed.add_field(
+                                    name="Thread Link", 
+                                    value=f"[Click here to view the thread]({channel.jump_url})", 
+                                    inline=False
                                 )
-                            embed.add_field(
-                                name="Thread Link", 
-                                value=f"[Click here to view the thread]({channel.jump_url})", 
-                                inline=False
-                            )
-                            embed.add_field(name="Suggested By", value=message.author.mention, inline=False)
-                            view = SuggestionReviewView(original_thread=channel, review_embed=embed, review_tag=review_tag_object, accepted_tag=accepted_tag_object, rejected_tag=rejected_tag_object)
-                            await review_channel.send(embed=embed, view=view)
+                                embed.add_field(name="Suggested By", value=message.author.mention, inline=False)
+                                view = SuggestionReviewView(original_thread=channel, review_embed=embed, review_tag=review_tag_object, accepted_tag=accepted_tag_object, rejected_tag=rejected_tag_object)
+                                await review_channel.send(embed=embed, view=view)
+                                
+    except Exception as e:
+        await log(f'ERROR: Encountered error when marking a suggestion for review: {e}')
                             
 class SuggestionReviewView(View):
     def __init__(self, original_thread, review_embed, review_tag, accepted_tag, rejected_tag):
@@ -506,29 +526,37 @@ class SuggestionReviewView(View):
 
     @discord.ui.button(label="Accept", style=discord.ButtonStyle.success)
     async def accept_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Remove 'Under Review' tag, add 'Accepted' tag
-        await self.original_thread.add_tags(self.accepted_tag)
-        await self.original_thread.remove_tags(self.review_tag)
-        self.review_embed.color = discord.Color.green()
-        self.review_embed.title = f"Accepted: {self.original_thread.name}" 
-
-        await interaction.message.edit(embed=self.review_embed, view=None)
-        await interaction.response.send_message("Suggestion accepted!", ephemeral=True)
-        await self.original_thread.send("This suggestion has been accepted!")
-        await log(f'LOG: Suggestion "{self.original_thread.name}" has been accepted')
+        try:
+            await self.original_thread.add_tags(self.accepted_tag)
+            await self.original_thread.remove_tags(self.review_tag)
+            self.review_embed.color = discord.Color.green()
+            self.review_embed.title = f"Accepted: {self.original_thread.name}" 
+            
+            await interaction.message.edit(embed=self.review_embed, view=None)
+            await interaction.response.send_message("Suggestion accepted!", ephemeral=True)
+            await self.original_thread.send("This suggestion has been accepted!")
+            await log(f'LOG: Suggestion "{self.original_thread.name}" has been accepted')
+            
+        except Exception as e:
+            await interaction.response.send_message("An error occurred. Please check logs for more details.", ephemeral=True)
+            await log(f'ERROR: Encountered error when accepting a suggestion: {e}')
 
     @discord.ui.button(label="Reject", style=discord.ButtonStyle.danger)
     async def reject_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        # Remove 'Under Review' tag, add 'Rejected' tag
-        await self.original_thread.add_tags(self.rejected_tag)
-        await self.original_thread.remove_tags(self.review_tag)
-        self.review_embed.color = discord.Color.red()
-        self.review_embed.title = f"Rejected: {self.original_thread.name}" 
+        try:
+            await self.original_thread.add_tags(self.rejected_tag)
+            await self.original_thread.remove_tags(self.review_tag)
+            self.review_embed.color = discord.Color.red()
+            self.review_embed.title = f"Rejected: {self.original_thread.name}" 
 
-        await interaction.message.edit(embed=self.review_embed, view=None)
-        await interaction.response.send_message("Suggestion rejected!", ephemeral=True)
-        await self.original_thread.send("This suggestion has been rejected!")
-        await log(f'LOG: Suggestion "{self.original_thread.name}" has been rejected')
+            await interaction.message.edit(embed=self.review_embed, view=None)
+            await interaction.response.send_message("Suggestion rejected!", ephemeral=True)
+            await self.original_thread.send("This suggestion has been rejected!")
+            await log(f'LOG: Suggestion "{self.original_thread.name}" has been rejected')
+            
+        except Exception as e:
+            await interaction.response.send_message("An error occurred. Please check logs for more details.", ephemeral=True)
+            await log(f'ERROR: Encountered error when denying a suggestion: {e}')
 
 
 # Thread Pinning
@@ -608,6 +636,12 @@ async def on_message_delete(message):
 
 
 # Logs
+@client.event
+async def on_error(event, *args, **kwargs):
+    import traceback
+    error_message = traceback.format_exc()
+    await log(f'ERROR: An error has occured: {event}: {error_message}')
+
 async def log(message):
     print(message)
     log_channel = client.get_channel(log_channel_id)
