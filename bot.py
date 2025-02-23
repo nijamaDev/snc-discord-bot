@@ -110,6 +110,16 @@ bot_admin = [
     690342949556584690 # Bomb
     ]
 
+@tree.command(name='on_ready',description='Run the on_ready function of the bot!')
+async def on_ready_command(interaction:discord.Interaction):
+    if interaction.user.id not in bot_admin:
+        await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
+        await log(f'ERROR: User <@{interaction.user.id}> attempted to use `set_config` without permission')
+        return
+    
+    await interaction.response.send_message('Reloading!', ephemeral=True)
+    await on_ready()
+
 @tree.command(name='set_config',description='Configure the bot!')
 async def set_config(interaction:discord.Interaction, config: str, value: str):
     if interaction.user.id not in bot_admin:
