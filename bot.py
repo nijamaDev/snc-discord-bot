@@ -581,7 +581,7 @@ async def mark_for_review(interaction:discord):
         if isinstance(channel, discord.Thread):
             parent_channel = channel.parent
             if parent_channel.id == suggestions_channel_id:
-                message = await channel.fetch_message(interaction.channel)
+                message = await channel.fetch_message(interaction.channel.id)
                 review_tag = discord.utils.get(parent_channel.available_tags, id=review_tag_id)
                 accepted_tag = discord.utils.get(parent_channel.available_tags, id=accepted_tag_id)
                 rejected_tag = discord.utils.get(parent_channel.available_tags, id=rejected_tag_id)
@@ -605,7 +605,7 @@ async def mark_for_review(interaction:discord):
                     await review_channel.send(embed=embed, view=view)
                                 
     except Exception as e:
-        await log(f'ERROR: Encountered error when marking a suggestion for review: {e}')
+        await log(f'ERROR: Encountered error when manually marking a suggestion for review: {e}')
     
 # Thread Pinning
 
