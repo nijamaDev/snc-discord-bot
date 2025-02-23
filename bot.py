@@ -581,12 +581,12 @@ async def mark_for_review(interaction:discord):
         if isinstance(channel, discord.Thread):
             parent_channel = channel.parent
             if parent_channel.id == suggestions_channel_id:
-                message = await channel.fetch_message(interaction.message_id)
+                message = await channel.fetch_message(interaction.channel)
                 review_tag = discord.utils.get(parent_channel.available_tags, id=review_tag_id)
                 accepted_tag = discord.utils.get(parent_channel.available_tags, id=accepted_tag_id)
                 rejected_tag = discord.utils.get(parent_channel.available_tags, id=rejected_tag_id)
                 if review_tag:
-                    await log(f'LOG: Suggestion "{channel}" marked for review')
+                    await log(f'LOG: Suggestion "{channel}" manually marked for review by {interaction.user.mention}')
                     await channel.add_tags(review_tag)
                     await channel.send('This suggestion has been marked for review!')
                     review_channel = client.get_channel(review_channel_id)
