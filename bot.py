@@ -114,17 +114,18 @@ bot_admin = [
 async def on_ready_command(interaction:discord.Interaction):
     if interaction.user.id not in bot_admin:
         await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
-        await log(f'ERROR: User <@{interaction.user.id}> attempted to use `set_config` without permission')
+        await log(f'ERROR: User {interaction.user.mention} attempted to use `on_ready` without permission')
         return
     
     await interaction.response.send_message('Reloading!', ephemeral=True)
+    await log(f'LOG: User {interaction.user.mention} reloaded the bot')
     await on_ready()
 
 @tree.command(name='set_config',description='Configure the bot!')
 async def set_config(interaction:discord.Interaction, config: str, value: str):
     if interaction.user.id not in bot_admin:
         await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
-        await log(f'ERROR: User <@{interaction.user.id}> attempted to use `set_config` without permission')
+        await log(f'ERROR: User {interaction.user.mention} attempted to use `set_config` without permission')
         return
     
     configs = [
@@ -140,16 +141,16 @@ async def set_config(interaction:discord.Interaction, config: str, value: str):
     if config.upper().replace(' ', '_') in configs:
         await update_env_var(config.upper().replace(' ', '_'), value)
         await interaction.response.send_message(f'Config `{config}` has been updated to `{value}`.', ephemeral=True)
-        await log(f'LOG: Config `{config}` updated to `{value}` by user <@{interaction.user.id}>')
+        await log(f'LOG: Config `{config}` updated to `{value}` by user {interaction.user.mention}')
     else:
         await interaction.response.send_message(f'Invalid config key: `{config}`. Valid config keys: `{configs}`', ephemeral=True)
-        await log(f'ERROR: Invalid config key `{config}` provided by user <@{interaction.user.id}>')
+        await log(f'ERROR: Invalid config key `{config}` provided by user {interaction.user.mention}')
 
 @tree.command(name='get_config',description='View the current configuration of the bot!')
 async def get_config(interaction:discord.Interaction):
     if interaction.user.id not in bot_admin:
         await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
-        await log(f'ERROR: User <@{interaction.user.id}> attempted to use `get_config` without permission')
+        await log(f'ERROR: User {interaction.user.mention} attempted to use `get_config` without permission')
         return
 
     configs = {
@@ -500,12 +501,12 @@ async def on_raw_reaction_add(payload):
                 for reaction in message.reactions:
                     if reaction.count >= required_reactions and reaction.emoji == vote_reaction:
                         if not any(tag.id == review_tag_id or tag.id == accepted_tag_id or tag.id == rejected_tag_id or tag.id == discussion_tag_id for tag in channel.applied_tags):
-                            review_tag_object = discord.utils.get(parent_channel.available_tags, id=review_tag_id)
-                            accepted_tag_object = discord.utils.get(parent_channel.available_tags, id=accepted_tag_id)
-                            rejected_tag_object = discord.utils.get(parent_channel.available_tags, id=rejected_tag_id)
-                            if review_tag_object:
+                            review_tag = discord.utils.get(parent_channel.available_tags, id=review_tag_id)
+                            accepted_tag = discord.utils.get(parent_channel.available_tags, id=accepted_tag_id)
+                            rejected_tag = discord.utils.get(parent_channel.available_tags, id=rejected_tag_id)
+                            if review_tag:
                                 await log(f'LOG: Suggestion "{channel}" marked for review')
-                                await channel.add_tags(review_tag_object)
+                                await channel.add_tags(review_tag)
                                 await channel.send('This suggestion has been marked for review!')
                                 review_channel = client.get_channel(review_channel_id)
                                 embed = discord.Embed(
@@ -519,7 +520,7 @@ async def on_raw_reaction_add(payload):
                                     inline=False
                                 )
                                 embed.add_field(name="Suggested By", value=message.author.mention, inline=False)
-                                view = SuggestionReviewView(original_thread=channel, review_embed=embed, review_tag=review_tag_object, accepted_tag=accepted_tag_object, rejected_tag=rejected_tag_object)
+                                view = SuggestionReviewView(original_thread=channel, review_embed=embed, review_tag=review_tag, accepted_tag=accepted_tag, rejected_tag=rejected_tag)
                                 await review_channel.send(embed=embed, view=view)
                                 
     except Exception as e:
@@ -568,7 +569,44 @@ class SuggestionReviewView(View):
             await interaction.response.send_message("An error occurred. Please check logs for more details.", ephemeral=True)
             await log(f'ERROR: Encountered error when denying a suggestion: {e}')
 
-
+@tree.command(name='mark_for_review',description='Mark a suggestion for review')
+async def mark_for_review(interaction:discord):
+    if interaction.user.id not in bot_admin:
+        await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
+        await log(f'ERROR: User {interaction.user.mention} attempted to use `mark_for_review` without permission')
+        return
+    try:
+        channel = client.get_channel(interaction.channel_id)
+        
+        if isinstance(channel, discord.Thread):
+            parent_channel = channel.parent
+            if parent_channel.id == suggestions_channel_id:
+                message = await channel.fetch_message(interaction.message_id)
+                review_tag = discord.utils.get(parent_channel.available_tags, id=review_tag_id)
+                accepted_tag = discord.utils.get(parent_channel.available_tags, id=accepted_tag_id)
+                rejected_tag = discord.utils.get(parent_channel.available_tags, id=rejected_tag_id)
+                if review_tag:
+                    await log(f'LOG: Suggestion "{channel}" marked for review')
+                    await channel.add_tags(review_tag)
+                    await channel.send('This suggestion has been marked for review!')
+                    review_channel = client.get_channel(review_channel_id)
+                    embed = discord.Embed(
+                            color = discord.Color.yellow(),
+                            title = channel.name,
+                            description = message.content
+                        )
+                    embed.add_field(
+                        name="Thread Link", 
+                        value=f"[Click here to view the thread]({channel.jump_url})", 
+                        inline=False
+                    )
+                    embed.add_field(name="Suggested By", value=message.author.mention, inline=False)
+                    view = SuggestionReviewView(original_thread=channel, review_embed=embed, review_tag=review_tag, accepted_tag=accepted_tag, rejected_tag=rejected_tag)
+                    await review_channel.send(embed=embed, view=view)
+                                
+    except Exception as e:
+        await log(f'ERROR: Encountered error when marking a suggestion for review: {e}')
+    
 # Thread Pinning
 
 
