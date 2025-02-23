@@ -485,6 +485,11 @@ async def snc_config(interaction:discord.Interaction):
 async def chainsaw(interaction:discord.Interaction):
     await interaction.response.send_message('https://www.planetminecraft.com/project/chainsaw-craft-chainsaw-man-in-minecraft-vanilla/')
     await log(f'LOG: User <@{interaction.user.id}> ran command "chainsaw" in channel {interaction.channel}')
+    
+@tree.command(name='server',description='Get the IP of the server!')
+async def server(interaction:discord.Interaction):
+    await interaction.response.send_message('`sncraft.fanfus.best`')
+    await log(f'LOG: User <@{interaction.user.id}> ran command "server" in channel {interaction.channel}')
 
 
 
