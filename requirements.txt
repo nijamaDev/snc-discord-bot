@@ -19,7 +19,7 @@ nest-asyncio==1.6.0
 numpy==1.26.4
 packaging==24.1
 parso==0.8.4
-Pillow==9.5.0
+Pillow
 platformdirs==4.2.2
 prompt_toolkit==3.0.47
 psutil==5.9.8
