@@ -415,6 +415,10 @@ async def bug(interaction: discord.Interaction):
 
 bug_report_cooldowns = {}
 
+# @tree.command(name='verify_bug', description="Verify a bug report!")
+# async def verify_bug(interaction: discord.Interaction):
+#     pass
+
 ## Help Commands
 @tree.command(name='wiki',description='Get the link to the wiki!')
 async def wiki(interaction:discord.Interaction):
@@ -488,7 +492,7 @@ async def chainsaw(interaction:discord.Interaction):
     
 @tree.command(name='server',description='Get the IP of the server!')
 async def server(interaction:discord.Interaction):
-    await interaction.response.send_message('`sncraft.fanfus.best`')
+    await interaction.response.send_message('`sncraft.minecraft.best`')
     await log(f'LOG: User <@{interaction.user.id}> ran command "server" in channel {interaction.channel}')
 
 
@@ -608,8 +612,9 @@ async def mark_for_review(interaction:discord):
                     embed.add_field(name="Suggested By", value=message.author.mention, inline=False)
                     view = SuggestionReviewView(original_thread=channel, review_embed=embed, review_tag=review_tag, accepted_tag=accepted_tag, rejected_tag=rejected_tag)
                     await review_channel.send(embed=embed, view=view)
-                                
+        await interaction.response.send_message("Succesfully marked suggestion for review!")
     except Exception as e:
+        await interaction.response.send_message("An error occured. Check logs for more details.")
         await log(f'ERROR: Encountered error when manually marking a suggestion for review: {e}')
     
 # Thread Pinning
