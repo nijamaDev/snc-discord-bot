@@ -630,13 +630,25 @@ async def on_message(message):
             modmail_thread = create_thread.thread
             await log(f'LOG: Creating modmail thread for user <@{message.author.id}>')
         
-        await modmail_thread.send(f"**[MODMAIL] {message.author.mention}:** {message.content}")
+        content = f"**[MODMAIL] {message.author.mention}:** {message.content}"
+        files = []
+        if message.attachments:
+            for attachment in message.attachments:
+                file = await attachment.to_file()
+                files.append(file)
+        await modmail_thread.send(content=content, files=files)
         await message.add_reaction("📨")
         
     
     if isinstance(message.channel, discord.Thread) and message.channel.parent_id == modmail_channel.id:
         user = await client.fetch_user(int(message.channel.name.split(" - ")[0]))
-        await user.send(f"**[MODMAIL] {message.author.mention}:** {message.content}")
+        content = f"**[MODMAIL] {message.author.mention}:** {message.content}"
+        files = []
+        if message.attachments:
+            for attachment in message.attachments:
+                file = await attachment.to_file()
+                files.append(file)
+        await user.send(content=content, files=files)
         await message.add_reaction("📨")
     
 
@@ -653,7 +665,13 @@ async def on_message_edit(before, after):
         
         if user_thread_name in open_threads:
             modmail_thread = open_threads[user_thread_name]
-            await modmail_thread.send(f"**[MODMAIL] {before.author.mention}:** *Edited Message*\n**Before:** {before.content}\n**After:** {after.content}")
+            content = f"**[MODMAIL] {before.author.mention}:** *Edited Message*\n**Before:** {before.content}\n**After:** {after.content}"
+            files = []
+            if before.attachments:
+                for attachment in before.attachments:
+                    file = await attachment.to_file()
+                    files.append(file)
+            await modmail_thread.send(content=content, files=files)
 
 @client.event
 async def on_message_delete(message):
@@ -668,7 +686,13 @@ async def on_message_delete(message):
         
         if user_thread_name in open_threads:
             modmail_thread = open_threads[user_thread_name]
-            await modmail_thread.send(f"**[MODMAIL] {message.author.mention}:** *Deleted Message:* {message.content}")
+            content = f"**[MODMAIL] {message.author.mention}:** *Deleted Message:* {message.content}"
+            files = []
+            if message.attachments:
+                for attachment in message.attachments:
+                    file = await attachment.to_file()
+                    files.append(file)
+            await modmail_thread.send(content=content, files=files)
 
 
 # Moderation
