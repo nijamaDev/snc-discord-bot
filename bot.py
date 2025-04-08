@@ -248,21 +248,6 @@ async def update_env_var(key, value):
         else:
             await log(f'ERROR: Failed to get private bug channel tags: Channel {bug_channel} is not a forum channel')
     
-    
-# ## Shifter Hunt 6
-# bot_food = str(os.getenv('BOT_FOOD'))
-# correct_food_response = str(os.getenv('CORRECT_FOOD_RESPONSE'))
-# hunt_secret_word = str(os.getenv('SECRET_WORD'))
-
-
-# @tree.command(name='feed',description='Feed the bot!')
-# async def feed(interaction:discord.Interaction, food: str):
-#     if food == bot_food:
-#         await interaction.response.send_message(correct_food_response, ephemeral=True)
-#         await log(f'LOG: User <@{interaction.user.id}> used the correct food <@690342949556584690>')
-#         return
-#     await interaction.response.send_message('The bot rejects the food.', ephemeral=True)
-
 
 ## Bug Reporter
 class BugDropdown(discord.ui.Select):
@@ -648,9 +633,6 @@ async def on_message(message):
         await modmail_thread.send(f"**[MODMAIL] {message.author.mention}:** {message.content}")
         await message.add_reaction("📨")
         
-        # # For the hunt
-        # if hunt_secret_word in message.content.lower():
-        #     await modmail_thread.send(f"<@690342949556584690> user {message.author.mention} has completed the hunt!")
     
     if isinstance(message.channel, discord.Thread) and message.channel.parent_id == modmail_channel.id:
         user = await client.fetch_user(int(message.channel.name.split(" - ")[0]))
