@@ -1,0 +1,5 @@
+Suggestion and Server Listing system similar to /bug
+Automod
+Command for server hosters to delete server listings
+Command for testers to automatically send public bugs to tester bugs channel
+Thread creators can pin msgs with the pin emoji
