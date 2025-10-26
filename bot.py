@@ -724,7 +724,11 @@ async def server(interaction:discord.Interaction):
 async def support(interaction:discord.Interaction):
     await interaction.response.send_message('You can support SNC through several different ways, including [Patreon](https://www.patreon.com/join/8356530), [Ko-Fi](https://ko-fi.com/fanfo/tiers), boosting the server, which has the same rewards as buying Maria on Patreon or Ko-Fi, or just simply being here in the community. Never feel pressured to buy something you cannot afford.')
     await log(f'LOG: User {interaction.user.mention} ran command `support` in channel <#{interaction.channel_id}>')
-
+    
+@tree.command(name='elysium_archive',description='Get links to the world download of previous seasons of Elysium')
+async def elysium_archive(interaction:discord.Interaction):
+    await interaction.response.send_message('**Elysium S1 World Download:** <https://mega.nz/file/IdsiwawI#-ftkFRWad8lRG3_hxgnhxZk7yduVEcztZ2NzLiZfgBE>\n**Elysium S2 World Download:** <https://mega.nz/file/xYVnnKiQ#jBNhuyjWoPAeoydYIsa3G6IlerkO49h6ouP34oeu2ag>')
+    await log(f'LOG: User {interaction.user.mention} ran command `elysium_archive` in channel <#{interaction.channel_id}>')
 
 
 # Suggestions Manager
