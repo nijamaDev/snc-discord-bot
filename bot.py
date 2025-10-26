@@ -18,6 +18,7 @@ log_channel_id = int(os.getenv('LOG_CHANNEL_ID'))
 modmail_channel_id = int(os.getenv('MODMAIL_CHANNEL_ID'))
 public_bug_channel_id = int(os.getenv('PUBLIC_BUG_CHANNEL_ID'))
 private_bug_channel_id = int(os.getenv('PRIVATE_BUG_CHANNEL_ID'))
+server_listings_channel_id = int(os.getenv('SERVER_LISTINGS_CHANNEL_ID'))
 
 # Define intents
 intents = discord.Intents.all()
@@ -100,6 +101,44 @@ async def on_ready():
         except Exception as e:
             await log(f'ERROR: Encountered an error when checking for private bug channel tags: {e}')
             
+        try:
+            global server_listings_tag_sur_adv
+            global server_listings_tag_sur
+            global server_listings_tag_adv
+            global server_listings_tag_fabric
+            global server_listings_tag_forge
+            global server_listings_tag_essential
+            global server_listings_tag_rp
+            global server_listings_tag_casual
+            global server_listings_tag_comp
+            global server_listings_tag_custom_map
+            global server_listings_tag_minigames
+            global server_listings_tag_creative
+            global server_listings_tag_premium
+            global server_listings_tag_cracked
+            server_listings_channel = await client.fetch_channel(server_listings_channel_id)
+            if isinstance(server_listings_channel, discord.ForumChannel):
+                server_listings_tag_sur_adv = next((tag for tag in server_listings_channel.available_tags if 'survival' in tag.name.lower() if 'adventure' in tag.name.lower())).id
+                server_listings_tag_sur = next((tag for tag in server_listings_channel.available_tags if 'survival' in tag.name.lower() if 'adventure' not in tag.name.lower())).id
+                server_listings_tag_adv = next((tag for tag in server_listings_channel.available_tags if 'adventure' in tag.name.lower() if 'survival' not in tag.name.lower())).id
+                server_listings_tag_fabric = next((tag for tag in server_listings_channel.available_tags if 'fabric' in tag.name.lower())).id
+                server_listings_tag_forge = next((tag for tag in server_listings_channel.available_tags if 'forge' in tag.name.lower())).id
+                server_listings_tag_essential = next((tag for tag in server_listings_channel.available_tags if 'essential' in tag.name.lower())).id
+                server_listings_tag_rp = next((tag for tag in server_listings_channel.available_tags if 'roleplay' in tag.name.lower())).id
+                server_listings_tag_casual = next((tag for tag in server_listings_channel.available_tags if 'casual' in tag.name.lower())).id
+                server_listings_tag_comp = next((tag for tag in server_listings_channel.available_tags if 'competitive' in tag.name.lower())).id
+                server_listings_tag_custom_map = next((tag for tag in server_listings_channel.available_tags if 'custom map' in tag.name.lower())).id
+                server_listings_tag_minigames = next((tag for tag in server_listings_channel.available_tags if 'minigames' in tag.name.lower())).id
+                server_listings_tag_creative = next((tag for tag in server_listings_channel.available_tags if 'creative' in tag.name.lower())).id
+                server_listings_tag_premium = next((tag for tag in server_listings_channel.available_tags if 'premium' in tag.name.lower())).id
+                server_listings_tag_cracked = next((tag for tag in server_listings_channel.available_tags if 'cracked' in tag.name.lower())).id
+                
+            else:
+                await log(f'ERROR: Failed to get server listings channel tags: Channel {server_listings_channel} is not a forum channel')
+                
+        except Exception as e:
+            await log(f'ERROR: Encountered an error when checking for server listings channel tags: {e}')
+            
     except Exception as e:
         await log(f'ERROR: Encountered an error when loading the bot: {e}')
 
@@ -107,7 +146,8 @@ async def on_ready():
 bot_admin = [
     293738089787031552, # Fanfo
     279823686532333570, # Nijama
-    690342949556584690 # Bomb
+    690342949556584690, # Bomb
+    760834405559304202 # Energy
     ]
 
 @tree.command(name='on_ready',description='Run the on_ready function of the bot!')
@@ -135,7 +175,8 @@ async def set_config(interaction:discord.Interaction, config: str, value: str):
         'LOG_CHANNEL_ID',
         'PUBLIC_BUG_CHANNEL_ID',
         'PRIVATE_BUG_CHANNEL_ID',
-        'MODMAIL_CHANNEL_ID'
+        'MODMAIL_CHANNEL_ID',
+        'SERVER_LISTINGS_CHANNEL_ID'
     ]
     
     if config.upper().replace(' ', '_') in configs:
@@ -160,7 +201,8 @@ async def get_config(interaction:discord.Interaction):
         'LOG_CHANNEL_ID': os.getenv('LOG_CHANNEL_ID'),
         'PUBLIC_BUG_CHANNEL_ID': os.getenv('BUG_CHANNEL_ID'),
         'PRIVATE_BUG_CHANNEL_ID': os.getenv('BUG_CHANNEL_ID'),
-        'MODMAIL_CHANNEL_ID': os.getenv('MODMAIL_CHANNEL_ID')
+        'MODMAIL_CHANNEL_ID': os.getenv('MODMAIL_CHANNEL_ID'),
+        'SERVER_LISTINGS_CHANNEL_ID': os.getenv('SERVER_LISTINGS_CHANNEL_ID')
     }
     
     config_message = "\n".join([f"{key}: {value}" for key, value in configs.items()])
@@ -245,6 +287,41 @@ async def update_env_var(key, value):
             private_bug_public_rel = next((tag for tag in bug_channel.available_tags if 'public' in tag.name.lower())).id
             private_bug_patreon_rel = next((tag for tag in bug_channel.available_tags if 'patreon' in tag.name.lower())).id
             private_bug_other_rel = next((tag for tag in bug_channel.available_tags if 'other' in tag.name.lower())).id
+        else:
+            await log(f'ERROR: Failed to get private bug channel tags: Channel {bug_channel} is not a forum channel')
+            
+    if key == 'SERVER_LISTINGS_CHANNEL_ID':
+        global server_listings_tag_sur_adv
+        global server_listings_tag_sur
+        global server_listings_tag_adv
+        global server_listings_tag_fabric
+        global server_listings_tag_forge
+        global server_listings_tag_essential
+        global server_listings_tag_rp
+        global server_listings_tag_casual
+        global server_listings_tag_comp
+        global server_listings_tag_custom_map
+        global server_listings_tag_minigames
+        global server_listings_tag_creative
+        global server_listings_tag_premium
+        global server_listings_tag_cracked
+        server_listings_channel = await client.fetch_channel(server_listings_channel_id)
+        if isinstance(server_listings_channel, discord.ForumChannel):
+            server_listings_tag_sur_adv = next((tag for tag in server_listings_channel.available_tags if 'survival' in tag.name.lower() if 'adventure' in tag.name.lower())).id
+            server_listings_tag_sur = next((tag for tag in server_listings_channel.available_tags if 'survival' in tag.name.lower() if 'adventure' not in tag.name.lower())).id
+            server_listings_tag_adv = next((tag for tag in server_listings_channel.available_tags if 'adventure' in tag.name.lower() if 'survival' not in tag.name.lower())).id
+            server_listings_tag_fabric = next((tag for tag in server_listings_channel.available_tags if 'fabric' in tag.name.lower())).id
+            server_listings_tag_forge = next((tag for tag in server_listings_channel.available_tags if 'forge' in tag.name.lower())).id
+            server_listings_tag_essential = next((tag for tag in server_listings_channel.available_tags if 'essential' in tag.name.lower())).id
+            server_listings_tag_rp = next((tag for tag in server_listings_channel.available_tags if 'roleplay' in tag.name.lower())).id
+            server_listings_tag_casual = next((tag for tag in server_listings_channel.available_tags if 'casual' in tag.name.lower())).id
+            server_listings_tag_comp = next((tag for tag in server_listings_channel.available_tags if 'competitive' in tag.name.lower())).id
+            server_listings_tag_custom_map = next((tag for tag in server_listings_channel.available_tags if 'custom map' in tag.name.lower())).id
+            server_listings_tag_minigames = next((tag for tag in server_listings_channel.available_tags if 'minigames' in tag.name.lower())).id
+            server_listings_tag_creative = next((tag for tag in server_listings_channel.available_tags if 'creative' in tag.name.lower())).id
+            server_listings_tag_premium = next((tag for tag in server_listings_channel.available_tags if 'premium' in tag.name.lower())).id
+            server_listings_tag_cracked = next((tag for tag in server_listings_channel.available_tags if 'cracked' in tag.name.lower())).id
+            
         else:
             await log(f'ERROR: Failed to get private bug channel tags: Channel {bug_channel} is not a forum channel')
     
@@ -404,6 +481,169 @@ bug_report_cooldowns = {}
 # async def verify_bug(interaction: discord.Interaction):
 #     pass
 
+## Server Listings
+class ServerListingDropdown(discord.ui.Select):
+    def __init__(self, placeholder, options, custom_id):
+        super().__init__(
+            placeholder=placeholder,
+            min_values=1,
+            max_values=1,
+            options=[discord.SelectOption(label=opt) for opt in options],
+            custom_id=custom_id
+        )
+
+    async def callback(self, interaction: discord.Interaction):
+        self.view.selected_options[self.custom_id] = self.values[0]
+        await interaction.response.defer()
+
+class ConfirmButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="Confirm", style=discord.ButtonStyle.green)
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.send_modal(ServerListingModal(self.view.selected_options))
+        message = await interaction.original_response()
+        await message.edit(view=None)
+
+class ServerListingView(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.selected_options = {}
+        
+        self.add_item(ServerListingDropdown("Premium or Cracked", ["Premium", "Cracked"], "online"))
+        self.add_item(ServerListingDropdown("Server Location", ["North America", "Central America", "South America", "Western Europe", "Eastern Europe", "Northern Europe", "Southern Europe", "Central Europe", "Oceania", "West Asia", "East Asia", "South Asia", "South East Asia", "Central Asia", "North Asia", "North Africa", "East Africa", "West Africa", "Central Africa", "South Africa"], "server_location"))
+        self.add_item(ServerListingDropdown("Server Type", ["Survival + Adventure", "Survival", "Creative", "Adventure", "Roleplay", "Minigames"], "server_type"))
+        self.add_item(ServerListingDropdown("Casual or Competitive", ["Casual", "Competitive"], "competitive"))
+        self.add_item(ConfirmButton())
+
+class ServerListingModal(discord.ui.Modal):
+    def __init__(self, selected_options):
+        super().__init__(title="Post a Server Listing!")
+        self.selected_options = selected_options
+        
+        self.add_item(discord.ui.TextInput(
+            style=discord.TextStyle.short,
+            label="Title",
+            required=True,
+            placeholder="What is the title of your server?"
+        ))
+        
+        self.add_item(discord.ui.TextInput(
+            style=discord.TextStyle.long,
+            label="Description",
+            required=True,
+            placeholder="Give a description of your server. Provide all relevant information."
+        ))
+        
+        self.add_item(discord.ui.TextInput(
+            style=discord.TextStyle.short,
+            label="IP Address",
+            required=True,
+            placeholder="Provide the IP address for your Minecraft server"
+        ))
+        
+        self.add_item(discord.ui.TextInput(
+            style=discord.TextStyle.short,
+            label="Minecraft Version",
+            required=True,
+            placeholder="Provide the version of Minecraft your server uses."
+        ))
+        
+        self.add_item(discord.ui.TextInput(
+            style=discord.TextStyle.short,
+            label="Discord Server (Not Required)",
+            required=False,
+            placeholder="Provide the link to a discord server associated with your server."
+        ))
+        
+    async def on_submit(self, interaction: discord.Interaction):
+        user_id = interaction.user.id
+        current_time = time.time()
+        
+        await interaction.response.defer(ephemeral=True)
+        
+        channel = await client.fetch_channel(server_listings_channel_id)
+
+        server_type_tags = {
+            "Survival + Adventure": server_listings_tag_sur_adv,
+            "Survival": server_listings_tag_sur,
+            "Creative": server_listings_tag_creative,
+            "Adventure": server_listings_tag_adv,
+            "Roleplay": server_listings_tag_rp,
+            "Minigames": server_listings_tag_minigames
+        }
+
+        competitive_tags = {
+            "Casual": server_listings_tag_casual,
+            "Competitive": server_listings_tag_comp
+        }
+        
+        online_tags = {
+            "Premium": server_listings_tag_premium,
+            "Cracked": server_listings_tag_cracked
+        }
+
+        applied_tags = [
+            server_type_tags.get(self.selected_options.get("server_type")),
+            competitive_tags.get(self.selected_options.get("competitive")),
+            online_tags.get(self.selected_options.get("online"))
+        ]
+
+        applied_tags = [
+            discord.Object(id=tag) for tag in [
+                server_type_tags.get(self.selected_options.get("server_type")),
+                competitive_tags.get(self.selected_options.get("competitive")),
+                online_tags.get(self.selected_options.get("online"))
+            ] if tag is not None
+        ]
+
+        if isinstance(channel, discord.ForumChannel):
+            await channel.create_thread(
+                name=self.children[0].value,
+                content=f'# Server Listing from {interaction.user.mention}\n\n'
+                        f'**Description:**\n {self.children[1].value}\n\n'
+                        f'**IP Address:**\n{self.children[2].value}\n\n'
+                        f'**Minecraft Version:**\n{self.children[3].value}\n\n'
+                        f'**Discord Server:**\n{self.children[4].value}\n\n'
+                        f'**Region:**\n{self.selected_options.get("server_location")}',
+                applied_tags=applied_tags
+            )
+            
+            server_listing_cooldowns[user_id] = current_time
+            
+            await interaction.followup.send("Server listing posted successfully!", ephemeral=True)
+            
+        else:
+            await log(f'ERROR: User <@{interaction.user.id}> encountered an issue when posting a server listing: Channel {channel} is not a forum channel!')
+
+    async def on_error(self, interaction: discord.Interaction, error):
+        await log(f'ERROR: User <@{interaction.user.id}> encountered an issue when posting a server listing: {error}')
+
+
+@tree.command(name="server_listing", description="Post a server listing!")
+async def server_listing(interaction: discord.Interaction):
+    user_id = interaction.user.id
+    current_time = time.time()
+    
+    # Check if user is on cooldown
+    if user_id in server_listing_cooldowns:
+        last_used = server_listing_cooldowns[user_id]
+        cooldown_time = 21600  # 6 hours
+        time_left = cooldown_time - (current_time - last_used)
+
+        if time_left > 0:
+            await interaction.response.send_message(
+                f"Please wait {int(time_left)} seconds before posting another server listing.", ephemeral=True
+            )
+            return
+
+    await log(f'LOG: User <@{interaction.user.id}> ran command "server_listing" in channel {interaction.channel}')
+    await interaction.response.send_message(
+        "Before posting your server listing, please answer the following questions:", ephemeral=True, view=ServerListingView()
+    )
+
+server_listing_cooldowns = {}
+
 ## Help Commands
 @tree.command(name='wiki',description='Get the link to the wiki!')
 async def wiki(interaction:discord.Interaction):
@@ -477,7 +717,7 @@ async def chainsaw(interaction:discord.Interaction):
     
 @tree.command(name='server',description='Get the IP of the server!')
 async def server(interaction:discord.Interaction):
-    await interaction.response.send_message('IP: `snc.sparked.network`\nVersion: `1.21.3`')
+    await interaction.response.send_message('IP: `snc.sparked.network`\nVersion: `1.21.8`')
     await log(f'LOG: User {interaction.user.mention} ran command `server` in channel <#{interaction.channel_id}>')
 
 @tree.command(name='support',description='See how you can support SNC!')
