@@ -341,7 +341,7 @@ class BugDropdown(discord.ui.Select):
         self.view.selected_options[self.custom_id] = self.values[0]
         await interaction.response.defer()
 
-class ConfirmButton(discord.ui.Button):
+class BugConfirmButton(discord.ui.Button):
     def __init__(self):
         super().__init__(label="Confirm", style=discord.ButtonStyle.green)
 
@@ -357,7 +357,7 @@ class BugReportView(discord.ui.View):
         
         self.add_item(BugDropdown("Priority", ["Low", "Medium", "High"], "priority"))
         self.add_item(BugDropdown("Release Type", ["Public", "Patreon", "Other"], "release_type"))
-        self.add_item(ConfirmButton())
+        self.add_item(BugConfirmButton())
 
 class BugModal(discord.ui.Modal):
     def __init__(self, selected_options):
@@ -496,7 +496,7 @@ class ServerListingDropdown(discord.ui.Select):
         self.view.selected_options[self.custom_id] = self.values[0]
         await interaction.response.defer()
 
-class ConfirmButton(discord.ui.Button):
+class ServerListingsConfirmButton(discord.ui.Button):
     def __init__(self):
         super().__init__(label="Confirm", style=discord.ButtonStyle.green)
 
@@ -514,7 +514,7 @@ class ServerListingView(discord.ui.View):
         self.add_item(ServerListingDropdown("Server Location", ["North America", "Central America", "South America", "Western Europe", "Eastern Europe", "Northern Europe", "Southern Europe", "Central Europe", "Oceania", "West Asia", "East Asia", "South Asia", "South East Asia", "Central Asia", "North Asia", "North Africa", "East Africa", "West Africa", "Central Africa", "South Africa"], "server_location"))
         self.add_item(ServerListingDropdown("Server Type", ["Survival + Adventure", "Survival", "Creative", "Adventure", "Roleplay", "Minigames"], "server_type"))
         self.add_item(ServerListingDropdown("Casual or Competitive", ["Casual", "Competitive"], "competitive"))
-        self.add_item(ConfirmButton())
+        self.add_item(ServerListingsConfirmButton())
 
 class ServerListingModal(discord.ui.Modal):
     def __init__(self, selected_options):
