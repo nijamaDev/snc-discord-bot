@@ -550,10 +550,10 @@ class ServerListingModal(discord.ui.Modal):
         ))
         
         self.add_item(discord.ui.TextInput(
-            style=discord.TextStyle.short,
-            label="Discord Server (Not Required)",
+            style=discord.TextStyle.long,
+            label="Extra Links",
             required=False,
-            placeholder="Provide the link to a discord server associated with your server."
+            placeholder="Image link, discord server, etc"
         ))
         
     async def on_submit(self, interaction: discord.Interaction):
@@ -604,8 +604,8 @@ class ServerListingModal(discord.ui.Modal):
                         f'**Description:**\n {self.children[1].value}\n\n'
                         f'**IP Address:**\n{self.children[2].value}\n\n'
                         f'**Minecraft Version:**\n{self.children[3].value}\n\n'
-                        f'**Discord Server:**\n{self.children[4].value}\n\n'
-                        f'**Region:**\n{self.selected_options.get("server_location")}',
+                        f'**Region:**\n{self.selected_options.get("server_location")}\n\n'
+                        f'**Extra Links:**\n{self.children[4].value}',
                 applied_tags=applied_tags
             )
             
