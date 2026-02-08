@@ -160,7 +160,7 @@ class ServerListing(commands.Cog):
                 )
                 return
 
-        await log(self.bot, f'LOG: User <@{interaction.user.id}> ran command `server_listing` in channel <#{interaction.channel.id}>')
+        await log(self.bot, f'LOG: User <@{interaction.user.id}> ran command `server_listing` in channel {interaction.channel.mention}')
         await interaction.response.send_message(
             "Before posting your server listing, please answer the following questions:", ephemeral=True, view=ServerListingView()
         )

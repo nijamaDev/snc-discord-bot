@@ -26,7 +26,7 @@ class SuggestionReviewView(View):
             await interaction.message.edit(embed=self.review_embed, view=None)
             await interaction.response.send_message("Suggestion accepted!", ephemeral=True)
             await self.original_thread.send("This suggestion has been accepted!")
-            await log(self.bot, f'LOG: Suggestion <#{self.original_thread.id}> has been accepted')
+            await log(self.bot, f'LOG: Suggestion {self.original_thread.mention} has been accepted')
             
         except Exception as e:
             await interaction.response.send_message("An error occurred. Please check logs for more details.", ephemeral=True)
@@ -43,7 +43,7 @@ class SuggestionReviewView(View):
             await interaction.message.edit(embed=self.review_embed, view=None)
             await interaction.response.send_message("Suggestion rejected!", ephemeral=True)
             await self.original_thread.send("This suggestion has been rejected!")
-            await log(self.bot, f'LOG: Suggestion <#{self.original_thread.id}> has been rejected')
+            await log(self.bot, f'LOG: Suggestion {self.original_thread.mention} has been rejected')
             
         except Exception as e:
             await interaction.response.send_message("An error occurred. Please check logs for more details.", ephemeral=True)
@@ -70,7 +70,7 @@ class Suggestions(commands.Cog):
                                 accepted_tag = discord.utils.get(parent_channel.available_tags, id=config.ACCEPTED_TAG_ID)
                                 rejected_tag = discord.utils.get(parent_channel.available_tags, id=config.REJECTED_TAG_ID)
                                 if review_tag:
-                                    await log(self.bot, f'LOG: Suggestion <#{channel.id}> marked for review')
+                                    await log(self.bot, f'LOG: Suggestion {channel.mention} marked for review')
                                     await channel.add_tags(review_tag)
                                     await channel.send('This suggestion has been marked for review!')
                                     review_channel = self.bot.get_channel(config.REVIEW_CHANNEL_ID)
@@ -93,7 +93,7 @@ class Suggestions(commands.Cog):
 
     @app_commands.command(name='mark_for_review',description='Mark a suggestion for review')
     async def mark_for_review(self, interaction:discord.Interaction):
-        if interaction.user.id not in config.BOT_ADMIN:
+        if config.ADMIN_ROLE_ID not in [role.id for role in interaction.user.roles] and config.MOD_ROLE_ID not in [role.id for role in interaction.user.roles]:
             await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
             await log(self.bot, f'ERROR: User {interaction.user.mention} attempted to use `mark_for_review` without permission')
             return
@@ -108,7 +108,7 @@ class Suggestions(commands.Cog):
                     accepted_tag = discord.utils.get(parent_channel.available_tags, id=config.ACCEPTED_TAG_ID)
                     rejected_tag = discord.utils.get(parent_channel.available_tags, id=config.REJECTED_TAG_ID)
                     if review_tag:
-                        await log(self.bot, f'LOG: Suggestion <#{channel.id}> manually marked for review by {interaction.user.mention}')
+                        await log(self.bot, f'LOG: Suggestion {channel.mention} manually marked for review by {interaction.user.mention}')
                         await channel.add_tags(review_tag)
                         await channel.send('This suggestion has been marked for review!')
                         review_channel = self.bot.get_channel(config.REVIEW_CHANNEL_ID)

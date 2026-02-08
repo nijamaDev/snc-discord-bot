@@ -10,7 +10,7 @@ class Admin(commands.Cog):
 
     @app_commands.command(name='on_ready', description='Run the on_ready function of the bot!')
     async def on_ready_command(self, interaction: discord.Interaction):
-        if interaction.user.id not in config.BOT_ADMIN:
+        if config.ADMIN_ROLE_ID not in [role.id for role in interaction.user.roles] and config.MOD_ROLE_ID not in [role.id for role in interaction.user.roles]:
             await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
             await log(self.bot, f'ERROR: User {interaction.user.mention} attempted to use `on_ready` without permission')
             return
@@ -21,7 +21,7 @@ class Admin(commands.Cog):
 
     @app_commands.command(name='set_config', description='Configure the bot!')
     async def set_config(self, interaction: discord.Interaction, config_key: str, value: str):
-        if interaction.user.id not in config.BOT_ADMIN:
+        if config.ADMIN_ROLE_ID not in [role.id for role in interaction.user.roles] and config.MOD_ROLE_ID not in [role.id for role in interaction.user.roles]:
             await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
             await log(self.bot, f'ERROR: User {interaction.user.mention} attempted to use `set_config` without permission')
             return
@@ -34,7 +34,11 @@ class Admin(commands.Cog):
             'PUBLIC_BUG_CHANNEL_ID',
             'PRIVATE_BUG_CHANNEL_ID',
             'MODMAIL_CHANNEL_ID',
-            'SERVER_LISTINGS_CHANNEL_ID'
+            'SERVER_LISTINGS_CHANNEL_ID',
+            'BAN_LOG_CHANNEL_ID',
+            'TESTER_ROLE_ID',
+            'MOD_ROLE_ID',
+            'ADMIN_ROLE_ID'
         ]
         
         config_key = config_key.upper().replace(' ', '_')
@@ -51,7 +55,7 @@ class Admin(commands.Cog):
 
     @app_commands.command(name='get_config', description='View the current configuration of the bot!')
     async def get_config(self, interaction: discord.Interaction):
-        if interaction.user.id not in config.BOT_ADMIN:
+        if config.ADMIN_ROLE_ID not in [role.id for role in interaction.user.roles] and config.MOD_ROLE_ID not in [role.id for role in interaction.user.roles]:
             await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
             await log(self.bot, f'ERROR: User {interaction.user.mention} attempted to use `get_config` without permission')
             return
@@ -64,7 +68,11 @@ class Admin(commands.Cog):
             'PUBLIC_BUG_CHANNEL_ID': config.PUBLIC_BUG_CHANNEL_ID,
             'PRIVATE_BUG_CHANNEL_ID': config.PRIVATE_BUG_CHANNEL_ID,
             'MODMAIL_CHANNEL_ID': config.MODMAIL_CHANNEL_ID,
-            'SERVER_LISTINGS_CHANNEL_ID': config.SERVER_LISTINGS_CHANNEL_ID
+            'SERVER_LISTINGS_CHANNEL_ID': config.SERVER_LISTINGS_CHANNEL_ID,
+            'BAN_LOG_CHANNEL_ID': config.BAN_LOG_CHANNEL_ID,
+            'TESTER_ROLE_ID': config.TESTER_ROLE_ID,
+            'MOD_ROLE_ID': config.MOD_ROLE_ID,
+            'ADMIN_ROLE_ID': config.ADMIN_ROLE_ID
         }
         
         config_message = "\n".join([f"{key}: {value}" for key, value in configs.items()])

@@ -38,7 +38,7 @@ class SNCBot(commands.Bot):
                 if isinstance(suggestions_channel, discord.ForumChannel):
                     if suggestions_channel.default_reaction_emoji:
                         config.VOTE_REACTION = suggestions_channel.default_reaction_emoji
-                        await log(self, f'LOG: Vote reaction found for channel <#{config.SUGGESTIONS_CHANNEL_ID}>. Using {config.VOTE_REACTION}')
+                        await log(self, f'LOG: Vote reaction found for channel {suggestions_channel.mention}. Using {config.VOTE_REACTION}')
                     else:
                         await log(self, 'WARN: No vote reaction found, using default: 👍')
                         config.VOTE_REACTION = "👍"
@@ -48,7 +48,7 @@ class SNCBot(commands.Bot):
                     config.REVIEW_TAG_ID = next((tag for tag in suggestions_channel.available_tags if 'review' in tag.name.lower())).id
                     config.DISCUSSION_TAG_ID = next((tag for tag in suggestions_channel.available_tags if 'discussion' in tag.name.lower())).id
                 else:
-                    await log(self, f'ERROR: Failed to get vote reaction: Channel <#{config.SUGGESTIONS_CHANNEL_ID}> is not a forum channel')
+                    await log(self, f'ERROR: Failed to get vote reaction: Channel {suggestions_channel.mention} is not a forum channel')
             except Exception as e:
                 await log(self, f'ERROR: Encountered an error when checking for suggestions vote reaction: {e}')
 
@@ -62,29 +62,19 @@ class SNCBot(commands.Bot):
                     config.PUBLIC_BUG_HIGH_PRIO = next((tag for tag in public_bug_channel.available_tags if 'high' in tag.name.lower())).id
                     config.PUBLIC_BUG_PUBLIC_REL = next((tag for tag in public_bug_channel.available_tags if 'public' in tag.name.lower())).id
                     config.PUBLIC_BUG_PATREON_REL = next((tag for tag in public_bug_channel.available_tags if 'patreon' in tag.name.lower())).id
+                    config.PUBLIC_BUG_SERVER_REL = next((tag for tag in public_bug_channel.available_tags if 'server' in tag.name.lower())).id
                     config.PUBLIC_BUG_OTHER_REL = next((tag for tag in public_bug_channel.available_tags if 'other' in tag.name.lower())).id
+                    config.PUBLIC_BUG_UNCONFIRMED = next((tag for tag in public_bug_channel.available_tags if 'unconfirmed' in tag.name.lower())).id
+                    config.PUBLIC_BUG_CONFIRMED = next((tag for tag in public_bug_channel.available_tags if 'confirmed' in tag.name.lower() and not 'unconfirmed' in tag.name.lower())).id
                 else:
-                    await log(self, f'ERROR: Failed to get public bug channel tags: Channel <#{public_bug_channel}> is not a forum channel')
+                    await log(self, f'ERROR: Failed to get public bug channel tags: Channel {public_bug_channel.mention} is not a forum channel')
             except Exception as e:
                 await log(self, f'ERROR: Encountered an error when checking for public bug channel tags: {e}')
 
         # Private Bug Channel
         if not key or key == 'PRIVATE_BUG_CHANNEL_ID':
             try:
-                private_bug_channel = await self.fetch_channel(config.PRIVATE_BUG_CHANNEL_ID) # Original code uses public_bug_channel_id for private_bug_channel in one place, but uses private_bug_channel here generally.
-                # Actually original code had: private_bug_channel = await client.fetch_channel(public_bug_channel_id) on line 90. That looks like a copy-paste error in original code or intentional.
-                # I will assume it should be PRIVATE_BUG_CHANNEL_ID. If the user had it set to PUBLIC ID, it's their setup. 
-                # Wait, if I change it to PRIVATE_BUG_CHANNEL_ID, it might break if they rely on the bug. 
-                # But looking at line 203 of original file: 'PRIVATE_BUG_CHANNEL_ID': os.getenv('BUG_CHANNEL_ID')
-                # Wait, line 202 and 203 both use 'BUG_CHANNEL_ID' from env?
-                # Ah, let's look at `config.py`.
-                # In original `bot.py`:
-                # 19: public_bug_channel_id = int(os.getenv('PUBLIC_BUG_CHANNEL_ID'))
-                # 20: private_bug_channel_id = int(os.getenv('PRIVATE_BUG_CHANNEL_ID'))
-                # But in `bot.py` line 90: `private_bug_channel = await client.fetch_channel(public_bug_channel_id)`
-                # This is DEFINITELY a bug in the original code, using public ID for private channel fetching.
-                # However, if I fix it, it might break if PRIVATE_BUG_CHANNEL_ID is invalid.
-                # I'll use PRIVATE_BUG_CHANNEL_ID as it makes more sense.
+                private_bug_channel = await self.fetch_channel(config.PRIVATE_BUG_CHANNEL_ID)
                 
                 if isinstance(private_bug_channel, discord.ForumChannel):
                     config.PRIVATE_BUG_LOW_PRIO = next((tag for tag in private_bug_channel.available_tags if 'low' in tag.name.lower())).id
@@ -92,9 +82,10 @@ class SNCBot(commands.Bot):
                     config.PRIVATE_BUG_HIGH_PRIO = next((tag for tag in private_bug_channel.available_tags if 'high' in tag.name.lower())).id
                     config.PRIVATE_BUG_PUBLIC_REL = next((tag for tag in private_bug_channel.available_tags if 'public' in tag.name.lower())).id
                     config.PRIVATE_BUG_PATREON_REL = next((tag for tag in private_bug_channel.available_tags if 'patreon' in tag.name.lower())).id
+                    config.PRIVATE_BUG_SERVER_REL = next((tag for tag in private_bug_channel.available_tags if 'server' in tag.name.lower())).id
                     config.PRIVATE_BUG_OTHER_REL = next((tag for tag in private_bug_channel.available_tags if 'other' in tag.name.lower())).id
                 else:
-                    await log(self, f'ERROR: Failed to get private bug channel tags: Channel <#{private_bug_channel}> is not a forum channel')
+                    await log(self, f'ERROR: Failed to get private bug channel tags: Channel {private_bug_channel.mention} is not a forum channel')
             except Exception as e:
                 await log(self, f'ERROR: Encountered an error when checking for private bug channel tags: {e}')
 
@@ -119,7 +110,7 @@ class SNCBot(commands.Bot):
                     config.SERVER_LISTINGS_TAG_CRACKED = next((tag for tag in server_listings_channel.available_tags if 'cracked' in tag.name.lower())).id
                     
                 else:
-                    await log(self, f'ERROR: Failed to get server listings channel tags: Channel <#{server_listings_channel}> is not a forum channel')
+                    await log(self, f'ERROR: Failed to get server listings channel tags: Channel {server_listings_channel.mention} is not a forum channel')
             except Exception as e:
                 await log(self, f'ERROR: Encountered an error when checking for server listings channel tags: {e}')
 

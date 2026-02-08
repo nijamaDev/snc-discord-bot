@@ -17,6 +17,7 @@ class Modmail(commands.Cog):
             return 
         
         if isinstance(message.channel, discord.DMChannel):
+            print(message)
             threads = list(modmail_channel.threads) + [thread async for thread in modmail_channel.archived_threads(limit=None)]
             open_threads = {thread.name: thread for thread in threads}
             user_thread_name = f"{message.author.id} - {message.author}"
@@ -55,7 +56,7 @@ class Modmail(commands.Cog):
                 await user.send(content=content, files=files)
                 await message.add_reaction("📨")
             except Exception as e:
-                 await log(self.bot, f'ERROR: Failed to send DM to user in modmail: {e}')
+                await log(self.bot, f'ERROR: Failed to send DM to user in modmail: {e}')
         
 
     @commands.Cog.listener()
@@ -66,7 +67,7 @@ class Modmail(commands.Cog):
         if isinstance(before.channel, discord.DMChannel):
             modmail_channel = self.bot.get_channel(config.MODMAIL_CHANNEL_ID)
             if not modmail_channel:
-                 return
+                return
             threads = list(modmail_channel.threads) + [thread async for thread in modmail_channel.archived_threads(limit=None)]
             open_threads = {thread.name: thread for thread in threads}
             user_thread_name = f"{before.author.id} - {before.author}"
@@ -89,7 +90,7 @@ class Modmail(commands.Cog):
         if isinstance(message.channel, discord.DMChannel):
             modmail_channel = self.bot.get_channel(config.MODMAIL_CHANNEL_ID)
             if not modmail_channel:
-                 return
+                return
             threads = list(modmail_channel.threads) + [thread async for thread in modmail_channel.archived_threads(limit=None)]
             open_threads = {thread.name: thread for thread in threads}
             user_thread_name = f"{message.author.id} - {message.author}"

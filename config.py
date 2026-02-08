@@ -12,13 +12,10 @@ MODMAIL_CHANNEL_ID = int(os.getenv('MODMAIL_CHANNEL_ID'))
 PUBLIC_BUG_CHANNEL_ID = int(os.getenv('PUBLIC_BUG_CHANNEL_ID'))
 PRIVATE_BUG_CHANNEL_ID = int(os.getenv('PRIVATE_BUG_CHANNEL_ID'))
 SERVER_LISTINGS_CHANNEL_ID = int(os.getenv('SERVER_LISTINGS_CHANNEL_ID'))
-
-BOT_ADMIN = [
-    293738089787031552, # Fanfo
-    279823686532333570, # Nijama
-    690342949556584690, # Bomb
-    760834405559304202 # Energy
-]
+BAN_LOG_CHANNEL_ID = int(os.getenv('BAN_LOG_CHANNEL_ID'))
+TESTER_ROLE_ID = int(os.getenv('TESTER_ROLE_ID'))
+MOD_ROLE_ID = int(os.getenv('MOD_ROLE_ID'))
+ADMIN_ROLE_ID = int(os.getenv('ADMIN_ROLE_ID'))
 
 # Runtime variables
 VOTE_REACTION = "👍"
@@ -32,13 +29,17 @@ PUBLIC_BUG_MEDIUM_PRIO = 0
 PUBLIC_BUG_HIGH_PRIO = 0
 PUBLIC_BUG_PUBLIC_REL = 0
 PUBLIC_BUG_PATREON_REL = 0
+PUBLIC_BUG_SERVER_REL = 0
 PUBLIC_BUG_OTHER_REL = 0
+PUBLIC_BUG_UNCONFIRMED = 0
+PUBLIC_BUG_CONFIRMED = 0
 
 PRIVATE_BUG_LOW_PRIO = 0
 PRIVATE_BUG_MEDIUM_PRIO = 0
 PRIVATE_BUG_HIGH_PRIO = 0
 PRIVATE_BUG_PUBLIC_REL = 0
 PRIVATE_BUG_PATREON_REL = 0
+PRIVATE_BUG_SERVER_REL = 0
 PRIVATE_BUG_OTHER_REL = 0
 
 SERVER_LISTINGS_TAG_SUR_ADV = 0
@@ -86,4 +87,4 @@ async def update_env_var(key, value):
     # Update the vars in the memory
     globals()[key] = value
     if key.endswith('_ID') or key == 'REQUIRED_REACTIONS':
-         globals()[key] = int(value)
+        globals()[key] = int(value)
