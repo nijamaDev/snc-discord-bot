@@ -24,6 +24,7 @@ class Banlist(commands.Cog):
             description=f"{audit_log.target.mention} has been banned from the server.\nReason: {audit_log.reason}\nBanned by: {audit_log.user.mention}",
             color=discord.Color.red()
         )
+        embed.set_thumbnail(url=audit_log.target.display_avatar.url)
         await banlist_channel.send(embed=embed)
         await log(self.bot, f'LOG: User {audit_log.target.mention} has been banned from the server')
         
@@ -43,6 +44,7 @@ class Banlist(commands.Cog):
             description=f"{audit_log.target.mention} has been unbanned from the server.\nUnbanned by: {audit_log.user.mention}",
             color=discord.Color.green()
         )
+        embed.set_thumbnail(url=audit_log.target.display_avatar.url)
         await banlist_channel.send(embed=embed)
         await log(self.bot, f'LOG: User {audit_log.target.mention} has been unbanned from the server')
             
