@@ -21,7 +21,7 @@ class Banlist(commands.Cog):
         banlist_channel = self.bot.get_channel(config.BAN_LOG_CHANNEL_ID)
         embed = discord.Embed(
             title="User Banned",
-            description=f"{audit_log.target.mention} - {audit_log.target.display_name} has been banned from the server.\nReason: {audit_log.reason}\nBanned by: {audit_log.user.mention}",
+            description=f"{audit_log.target.mention} - **{audit_log.target.display_name}** has been banned from the server.\nReason: {audit_log.reason}\nBanned by: {audit_log.user.mention}",
             color=discord.Color.red()
         )
         embed.set_thumbnail(url=audit_log.target.display_avatar.url)
@@ -41,7 +41,7 @@ class Banlist(commands.Cog):
         banlist_channel = self.bot.get_channel(config.BAN_LOG_CHANNEL_ID)
         embed = discord.Embed(
             title="User Unbanned",
-            description=f"{audit_log.target.mention} - {audit_log.target.display_name} has been unbanned from the server.\nUnbanned by: {audit_log.user.mention}",
+            description=f"{audit_log.target.mention} - **{audit_log.target.display_name}** has been unbanned from the server.\nUnbanned by: {audit_log.user.mention}",
             color=discord.Color.green()
         )
         embed.set_thumbnail(url=audit_log.target.display_avatar.url)
