@@ -149,7 +149,7 @@ class Commands(commands.Cog):
         await log(self.bot, f'LOG: User {interaction.user.mention} ran command `elysium_archive` in channel {interaction.channel.mention}')
         
     @app_commands.command(name='connect',description='Connects your Discord account with Minecraft')
-    async def connect(self, interaction:discord.Interaction, code:str):
+    async def connect(self, interaction:discord.Interaction, code:int):
         pass # Handled on Allawie's end
 
 class ThreadMessagePinning(commands.Cog):
