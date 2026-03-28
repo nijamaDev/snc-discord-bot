@@ -38,7 +38,7 @@ class Commands(commands.Cog):
         self.bot = bot
 
     patch_notes = {
-        '2026-03-27': '- Removed config commands, configs will be managed exclusivley from dokploy from now on for security purposes (The config commands never got any use anyways)\n- Fixed commands not being properly detected by discord',
+        '2026-03-27': '- Removed config commands, configs will be managed exclusivley from dokploy from now on for security purposes (The config commands never got used anyways)\n- Fixed commands not being properly detected by discord',
         '2026-02-07': '- Added the `/update` command to view the current and past patch notes for the bot.\n- Added the `/forward_bug` command to allow testers to automatically forward confirmed bugs to tester-only bug channel.\n- Added `Server Release` option under `Releases` category for bug reports\n- Added ban logs for moderators\n- Added the ability for thread owners to pin messages by reacting to any message in a thread with a pin emoji (📌 or📍)\n- Various bug fixes and improvements.',
         '2026-01-12': '- Added the `/command` command to get a list of commands and their descriptions.\n- Standardized logs to always mention relevant users and channels.\n- Major code refactor; split code into seperate cogs for better organization and readability.\n- Various bug fixes and improvements.',
         '2025-11-02': '- Changed `Discord Server` field to `Extra Links` in `/server_listing` command.',
