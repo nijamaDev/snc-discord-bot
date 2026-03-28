@@ -57,6 +57,7 @@ class Commands(commands.Cog):
         index = 0
         displayedNotes = list(self.patch_notes.keys())[index]
         await interaction.response.send_message(f'**{displayedNotes} Patch Notes**\n{self.patch_notes[displayedNotes]}', view=PatchNotesView(self.patch_notes, index))
+        await log(self.bot, f'LOG: User {interaction.user.mention} ran command `update` in channel {interaction.channel.mention}')
 
     @app_commands.command(name='commands',description='Get a list of commands and their descriptions')
     async def commands(self, interaction:discord.Interaction):
@@ -150,7 +151,8 @@ class Commands(commands.Cog):
         
     @app_commands.command(name='connect',description='Connects your Discord account with Minecraft')
     async def connect(self, interaction:discord.Interaction, code:int):
-        pass # Handled on Allawie's end
+        await log(self.bot, f'LOG: User {interaction.user.mention} ran command `commands` in channel {interaction.channel.mention}') 
+        # Handled on Allawie's end
 
 class ThreadMessagePinning(commands.Cog):
     def __init__(self, bot):
