@@ -143,7 +143,7 @@ class ServerListing(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="server_listing", description="Post a server listing!")
+    @app_commands.command(name="server_listing", description="Post a server listing")
     async def server_listing(self, interaction: discord.Interaction):
         user_id = interaction.user.id
         current_time = time.time()

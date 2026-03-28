@@ -135,7 +135,7 @@ class Bug(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name="bug", description="Report a bug!")
+    @app_commands.command(name="bug", description="Report a bug")
     async def bug(self, interaction: discord.Interaction):
         user_id = interaction.user.id
         current_time = time.time()
@@ -157,7 +157,7 @@ class Bug(commands.Cog):
             "Before reporting your bug, please answer the following questions:", ephemeral=True, view=BugReportView()
         )
     
-    @app_commands.command(name="forward_bug", description="Forward a bug report to the private bug channel!")
+    @app_commands.command(name="forward_bug", description="Forward a bug report to the private bug channel")
     async def forward_bug(self, interaction: discord.Interaction):
         if config.TESTER_ROLE_ID not in [role.id for role in interaction.user.roles] and config.ADMIN_ROLE_ID not in [role.id for role in interaction.user.roles] and config.MOD_ROLE_ID not in [role.id for role in interaction.user.roles]:
             await interaction.response.send_message("You don't have permission to use this command.", ephemeral=True)
