@@ -136,7 +136,7 @@ class Commands(commands.Cog):
         
     @app_commands.command(name='server',description='Get the IP of the official server')
     async def server(self, interaction:discord.Interaction):
-        await interaction.response.send_message('IP: `snc.sparked.network`\nVersion: `1.21.8`\nNo mods required!')
+        await interaction.response.send_message('IP: `play.sncraft.net`\nVersion: `1.21.8`\nNo mods required!')
         await log(self.bot, f'LOG: User {interaction.user.mention} ran command `server` in channel {interaction.channel.mention}')
 
     @app_commands.command(name='support',description='See how you can support SNC')
